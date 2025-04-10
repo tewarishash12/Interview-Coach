@@ -7,7 +7,8 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
   },
   "devDependencies": {
     "cors": "^2.8.5",
@@ -19,8 +20,10 @@
     "@google/generative-ai": "^0.24.0",
     "axios": "^1.8.4",
     "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
     "docx-parser": "^0.2.1",
     "express": "^5.1.0",
+    "express-fileupload": "^1.5.1",
     "mammoth": "^1.9.0",
     "mongoose": "^8.13.2",
     "multer": "^1.4.5-lts.2",
