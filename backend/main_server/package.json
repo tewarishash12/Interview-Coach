@@ -23,11 +23,15 @@
     "cookie-parser": "^1.4.7",
     "docx-parser": "^0.2.1",
     "express": "^5.1.0",
-    "express-fileupload": "^1.5.1",
+    "form-data": "^4.0.2",
+    "jsonwebtoken": "^9.0.2",
     "mammoth": "^1.9.0",
     "mongoose": "^8.13.2",
     "multer": "^1.4.5-lts.2",
+    "natural": "^8.0.1",
+    "openai": "^4.93.0",
     "pdf-parse": "^1.1.1",
+    "sentiment": "^5.0.2",
     "socket.io": "^4.8.1"
   }
 }
