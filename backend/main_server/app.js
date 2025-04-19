@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const http = require('http');
 const path = require('path');
+const User = require("./models/User")
 
 const { mongoConnect } = require('./config/db');
 
@@ -13,6 +14,7 @@ const resumeRoutes = require('./routes/resumeRoutes');
 const interviewRoutes = require('./routes/interviewRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
+const { authMiddleware } = require('./middleware/authMiddleware');
 
 dotenv.config();
 mongoConnect();
@@ -30,6 +32,16 @@ app.use(express.json());
 app.use('/interview', interviewRoutes);
 app.use('/ai', aiRoutes);
 app.use('/feedback', feedbackRoutes);
+
+app.get("/users/me", authMiddleware, async (req,res) =>{
+    try {
+        const userId = req.user._id;
+        const user = await User.findById(userId).select("-password");
+        res.status(201).json({ user });
+    } catch(err) {
+        res.status(500).json({message:err.message});
+    }
+})
 
 const PORT = process.env.PORT || 5000;
 
