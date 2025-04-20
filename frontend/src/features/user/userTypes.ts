@@ -22,5 +22,6 @@ export interface UserState {
     refreshToken: string | null;
     isLoading: boolean;
     isError: boolean;
+    isAuthenticated: boolean,
     errorMessage: string | null;
 }

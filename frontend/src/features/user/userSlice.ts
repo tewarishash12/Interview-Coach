@@ -1,7 +1,7 @@
 // features/user/userSlice.ts
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { axiosAuthInstance } from "@/utils/hook";
+import { axiosAuthInstance, axiosMainInstance } from "@/utils/tokenCreation";
 import {
     AuthResponse,
     RegisterResponse,
@@ -11,11 +11,12 @@ import {
 
 const initialState: UserState = {
     user: null,
-    accessToken: localStorage.getItem("access_token") || null,
-    refreshToken: localStorage.getItem("refresh_token") || null,
+    accessToken: null,
+    refreshToken: null,
     isLoading: false,
     isError: false,
     errorMessage: null,
+    isAuthenticated: false
 };
 
 // 👉 Async Thunks
@@ -70,6 +71,30 @@ export const logoutUser = createAsyncThunk<
         return thunkAPI.rejectWithValue('Transcription failed');
     }
 });
+
+export const fetchUserData = createAsyncThunk<
+    User, // The expected response type is User
+    void, // No arguments are needed when calling the function
+    { rejectValue: string }
+>(
+    "user/fetchUserData",
+    async (_, thunkAPI) => {
+        try {
+            const accessToken = localStorage.getItem("access_token");
+            if (!accessToken) {
+                return thunkAPI.rejectWithValue("No access token found");
+            }
+
+            const res = await axiosMainInstance.get("/users/me");
+            return res.data.user; // The response should contain the user object
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                return thunkAPI.rejectWithValue(error.message);
+            }
+            return thunkAPI.rejectWithValue("Failed to fetch user data");
+        }
+    }
+);
 
 export const refreshAccessToken = createAsyncThunk<
     { access_token: string },
@@ -132,11 +157,29 @@ const userSlice = createSlice({
                 state.errorMessage = action.payload || "Login failed";
             })
 
+            // Fetch User Data
+            .addCase(fetchUserData.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(fetchUserData.fulfilled, (state, action) => {
+                state.user = action.payload; // Store the user data
+                state.isLoading = false;
+                state.isError = false;
+                state.errorMessage = null;
+                state.isAuthenticated = true;
+            })
+            .addCase(fetchUserData.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.errorMessage = action.payload || "Failed to fetch user data";
+            })
+
             // Logout
             .addCase(logoutUser.fulfilled, (state) => {
                 state.user = null;
                 state.accessToken = null;
                 state.refreshToken = null;
+                state.isAuthenticated = false;
             })
 
             // Refresh Token
@@ -152,3 +195,4 @@ const userSlice = createSlice({
 
 export const { setUser } = userSlice.actions;
 export default userSlice.reducer;
+

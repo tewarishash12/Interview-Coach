@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const MAIN_LINK = process.env.NEXT_MAIN_API_URL;
-const AUTH_LINK = process.env.NEXT_AUTH_API_URL;
+const MAIN_LINK = process.env.NEXT_PUBLIC_MAIN_API_URL;
+const AUTH_LINK = process.env.NEXT_PUBLIC_AUTH_API_URL;
 
 export const axiosMainInstance = axios.create({
     baseURL: MAIN_LINK,
@@ -21,6 +21,7 @@ const refreshAccessToken = async () => {
     }
 
     try {
+        console.log("Auth_Link: ", AUTH_LINK);
         const response = await axiosAuthInstance.post(`/auth/token`, { token: refreshToken });
 
         const newAccessToken = response.data.access_token;
