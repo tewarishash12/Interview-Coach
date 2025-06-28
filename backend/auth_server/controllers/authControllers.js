@@ -52,7 +52,7 @@ exports.login = async (req, res) => {
             sameSite: isProduction ? 'Strict' : 'Lax'
         });
 
-        res.status(201).json({ message: "User logged in successfully", user: userInfo });
+        res.status(201).json({ message: "User logged in successfully" });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -89,13 +89,13 @@ exports.refreshToken = async (req, res) => {
 
 exports.logout = async (req, res) => {
     try {
-        const refreshToken = req.body.token;
+        const refreshToken = req.cookies.refresh_token;
         if (!(refreshTokens.has(refreshToken)))
             return res.status(400).json({ message: "Session for this token doesn't exist" });
         res.clearCookie('access_token');
         res.clearCookie('refresh_token');
         refreshTokens.delete(refreshToken);
-        res.status(200).json({ message: "Seesion has been successfully closed for the user" });
+        res.status(200).json({ message: "Session has been successfully closed for the user" });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
