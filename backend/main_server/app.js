@@ -28,7 +28,7 @@ app.use('/uploads', express.static(path.join(__dirname, process.env.UPLOAD_DIR))
 
 // Routes
 app.use('/resume', resumeRoutes);
-app.use(express.json());
+app.use(express.json({limit: '20mb'}));
 app.use('/interview', interviewRoutes);
 app.use('/ai', aiRoutes);
 app.use('/feedback', feedbackRoutes);

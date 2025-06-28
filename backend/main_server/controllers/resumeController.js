@@ -23,7 +23,7 @@ exports.uploadResume = async (req, res, next) => {
 
         await resume.save();
 
-        res.status(201).json({ message: 'Resume uploaded and parsed', resume });
+        res.status(201).json({ message: 'Resume uploaded and parsed', resumeId: resume._id, extractedText });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

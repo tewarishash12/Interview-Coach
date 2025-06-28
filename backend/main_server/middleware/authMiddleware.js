@@ -1,19 +1,17 @@
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = async (req, res, next) => {
-    try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ message: 'Unauthorized: No token provided' });
-        }
+    const accesstoken = req.cookies.access_token;
     
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        req.user = decoded.user;
-        next();
-    } catch (error) {
-        return res.status(403).json({ message: 'Forbidden: Invalid token' });
-    }
-};
+    if (!accesstoken)
+        return res.status(400).json({ message: "Access token is tampered" });
+    
+    jwt.verify(accesstoken, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
+        if (err) return res.status(401).json({ message: "Unauthorized to access" });
+
+        req.user = data.user;
+        next(); 
+    })
+}
 
 module.exports = { authMiddleware };
