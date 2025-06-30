@@ -52,7 +52,9 @@ exports.login = async (req, res) => {
             sameSite: isProduction ? 'Strict' : 'Lax'
         });
 
-        res.status(201).json({ message: "User logged in successfully" });
+        const userData = {_id:userInfo._id, email:userInfo.email, name:userInfo.name}
+
+        res.status(201).json({ message: "User logged in successfully", user:userData });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
