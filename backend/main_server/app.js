@@ -21,6 +21,7 @@ mongoConnect();
 
 
 // Middleware
+app.use(express.json({limit: '20mb'}));
 app.use(cors({
     origin: process.env.FRONTEND_URL, 
     credentials: true 
@@ -31,7 +32,6 @@ app.use('/uploads', express.static(path.join(__dirname,'uploads')));
 
 // Routes
 app.use('/resume', resumeRoutes);
-app.use(express.json({limit: '20mb'}));
 app.use('/interview', interviewRoutes);
 app.use('/ai', aiRoutes);
 app.use('/feedback', feedbackRoutes);

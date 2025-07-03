@@ -10,11 +10,11 @@ const PORT = process.env.PORT;
 const app = express();
 mongoConnect();
 
+app.use(express.json());
 app.use(cors({
     origin: process.env.FRONTEND_URL, 
     credentials: true 
 }));
-app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 
