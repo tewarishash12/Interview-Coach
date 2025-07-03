@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 export default function Navbar() {
     const router = useRouter();
-    const { isAuthenticated,isLoading } = useAppSelector((state) => state.auth);
+    const { isAuthenticated,isLoggingOut } = useAppSelector((state) => state.auth);
     const dispatch = useAppDispatch();
 
     async function handleLogout(){
@@ -32,8 +32,9 @@ export default function Navbar() {
                         </>
                     ) : (
                         <>
-                            <Link href="/features">Features</Link>
-                            <Link href="/pricing">Pricing</Link>
+                            <Link href="/resume-upload">Resume Upload</Link>
+                            <Link href="/resume">Resumes</Link>
+                            <Link href="/interview">Interviews</Link>
                         </>
                     )}
                 </div>
@@ -45,7 +46,7 @@ export default function Navbar() {
                             <Button2>Login</Button2>
                         </Link>
                         <Link href="/register">
-                            <Button1>Signup</Button1>
+                            <Button1>Register</Button1>
                         </Link>
                     </>
                 ) : (
@@ -58,7 +59,7 @@ export default function Navbar() {
                         <Button1
                         onClick={handleLogout}
                         >
-                            {isLoading? "Logging Out" : "Logout"}
+                            {isLoggingOut? "Logging Out" : "Logout"}
                         </Button1>
                     </>
                 )}
