@@ -60,7 +60,10 @@ export const fetchUserData = createAsyncThunk<
 
 const initialState: InitialUserState = {
     user: null,
-    isLoading: false,
+    isRegisteringIn: false,
+    isLoggingIn: false,
+    isLoggingOut:false,
+    isFetchingUser: false,
     isAuthenticated: false,
     errorMessage: null,
 }
@@ -73,59 +76,59 @@ const authSlice = createSlice({
         builder
             //registerUser call states
             .addCase(registerUser.pending, (state) => {
-                state.isLoading = true;
+                state.isRegisteringIn = true;
                 state.errorMessage = null;
             })
             .addCase(registerUser.fulfilled, (state) => {
-                state.isLoading = false;
+                state.isRegisteringIn = false;
                 state.errorMessage = null;
             })
             .addCase(registerUser.rejected, (state, action) => {
-                state.isLoading = false;
+                state.isRegisteringIn = false;
                 state.errorMessage = action.payload ?? "Somthing unexpected happened";
             })
 
             //loginUser call states
             .addCase(loginUser.pending, (state) => {
-                state.isLoading = true;
+                state.isLoggingIn = true;
                 state.errorMessage = null;
             })
             .addCase(loginUser.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.isLoggingIn = false;
                 state.errorMessage = null;
                 state.user = action.payload.user;
                 state.isAuthenticated = true;
             })
             .addCase(loginUser.rejected, (state, action) => {
-                state.isLoading = false;
+                state.isLoggingIn = false;
                 state.errorMessage = action.payload ?? "Something unexpected happened";
             })
 
             //logoutUser call states
             .addCase(logoutUser.pending, (state) => {
-                state.isLoading = true;
+                state.isLoggingOut = true;
                 state.errorMessage = null;
             })
             .addCase(logoutUser.fulfilled, (state) => {
                 state.user = null;
                 state.isAuthenticated = false;
-                state.isLoading = false;
+                state.isLoggingOut = false;
                 state.errorMessage = null;
             })
 
             //fetchuserdata call
             .addCase(fetchUserData.pending, (state)=>{
-                state.isLoading = true;
+                state.isFetchingUser = true;
                 state.errorMessage = null;
             })
             .addCase(fetchUserData.fulfilled, (state, action)=>{
                 state.isAuthenticated = true;
-                state.isLoading = false;
+                state.isFetchingUser = false;
                 state.user = action.payload.user;
                 state.errorMessage = null;
             })
             .addCase(fetchUserData.rejected, (state,action)=>{
-                state.isLoading = false;
+                state.isFetchingUser = false;
                 state.errorMessage = action.payload ?? "Something unexpected happened";
             })
     }

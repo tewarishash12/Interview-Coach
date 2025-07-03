@@ -17,7 +17,10 @@ export interface AuthLoginResponse {
 
 export interface InitialUserState {
     user: UserCredentials | null;
-    isLoading: boolean;
+    isLoggingIn: boolean;
+    isRegisteringIn: boolean;
+    isLoggingOut:boolean;
+    isFetchingUser: boolean;
     isAuthenticated: boolean;
     errorMessage: string | null;
 }
