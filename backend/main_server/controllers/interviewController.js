@@ -1,30 +1,38 @@
-// controllers/interviewController.js
 const Interview = require('../models/Interview');
 
-/**
- * Create a new interview record.
- * POST /api/interviews
- * Body: { questions: [String], responses: [String], feedback: Object }
- */
-exports.createInterview = async (req, res, next) => {
+exports.saveInterview = async (req, res) => {
     try {
-        const { questions, responses, feedbacks, scores, jobRole } = req.body;
+        const { questions, jobRole, resumeId } = req.body;
 
-        if (!questions || !responses || questions.length !== responses.length) {
-            return res.status(400).json({ error: 'Questions and responses must be provided and matched.' });
+        if (!questions) {
+            return res.status(400).json({ error: 'Questions, responses, and feedbacks must all be provided and of equal length.' });
         }
 
-        const formattedQuestions = questions.map((question, index) => ({
-            question,
-            answer: responses[index],
-            feedback: feedbacks?.[index] || '',
-            score: scores?.[index] || null,
+        const formattedQuestions = questions.map((q) => ({
+            question: q.question,
+            expectedKeywords: q.expectedKeywords || [],
+            answer: q.answer || "unattempted",
+            feedback: {
+                tone: q.feedback?.tone?.trim() || "unattempted",
+                toneScore: q.feedback?.toneScore ?? 0,
+                keywordDensity: q.feedback?.keywordDensity ?? 0,
+                grammarScore: q.feedback?.grammarScore ?? 0,
+                relevanceScore: q.feedback?.relevanceScore ?? 0,
+                totalTokens: q.feedback?.totalTokens ?? 0,
+                spellingErrors: q.feedback?.spellingErrors ?? 0,
+            },
+            score: typeof q.score === "number" ? q.score : 0,
         }));
+
+        const isComplete = !formattedQuestions.some(q => q.answer === 'unattempted');
+        const status = isComplete ? 'completed' : 'incomplete';
 
         const interview = await Interview.create({
             user: req.user._id,
+            resume: resumeId,
             jobRole,
             questions: formattedQuestions,
+            status,
         });
 
         res.status(201).json(interview);
@@ -33,11 +41,7 @@ exports.createInterview = async (req, res, next) => {
     }
 };
 
-/**
- * Get all interviews of the logged-in user.
- * GET /api/interviews
- */
-exports.getUserInterviews = async (req, res, next) => {
+exports.getUserInterviews = async (req, res) => {
     try {
         const interviews = await Interview.find({ user: req.user._id }).sort({ createdAt: -1 });
         res.status(200).json(interviews);
@@ -46,16 +50,9 @@ exports.getUserInterviews = async (req, res, next) => {
     }
 };
 
-/**
- * Get a specific interview by ID (must belong to the user).
- * GET /api/interviews/:id
- */
-exports.getInterviewById = async (req, res, next) => {
+exports.getInterviewById = async (req, res) => {
     try {
-        const interview = await Interview.findOne({
-            _id: req.params.id,
-            user: req.user._id,
-        });
+        const interview = await Interview.findOne({ _id: req.params.id });
 
         if (!interview) {
             return res.status(404).json({ error: 'Interview not found or access denied.' });
