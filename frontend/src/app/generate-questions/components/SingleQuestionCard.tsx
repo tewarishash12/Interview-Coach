@@ -21,19 +21,23 @@ export default function SingleQuestionCard() {
         dispatch(setShowConfirm(true));
     }
 
-    function confirmSkip() {
-    dispatch(setShowConfirm(false));
-    dispatch(setSkippedQuestions());
-
-    if (current + 1 < questions.length) {
-        // Not the last question
-        dispatch(goToNextQuestion());
-    } else {
-        // Last question, save the interview
-        dispatch(saveInterview({ questions, jobRole, resumeId }));
-        router.push("/");
+    if (!question) {
+        return <div>Loading question...</div>;
     }
-}
+
+    function confirmSkip() {
+        dispatch(setShowConfirm(false));
+        dispatch(setSkippedQuestions());
+
+        if (current + 1 < questions.length) {
+            // Not the last question
+            dispatch(goToNextQuestion());
+        } else {
+            // Last question, save the interview
+            dispatch(saveInterview({ questions, jobRole, resumeId }));
+            router.push("/");
+        }
+    }
 
     // Feedback slice would be present inside onSubmit
     async function handleSubmit() {
@@ -49,7 +53,7 @@ export default function SingleQuestionCard() {
                 dispatch(goToNextQuestion());
                 dispatch(resetTranscription());
             } else {
-                dispatch(saveInterview({questions,jobRole,resumeId}))
+                dispatch(saveInterview({ questions, jobRole, resumeId }))
                 router.push("/"); // Change to your target route
             }
         }
