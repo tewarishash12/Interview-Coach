@@ -1,71 +1,61 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { AudioState } from './audioTypes';
-import { axiosMainInstance } from '@/utils/hook';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { AudioState, TranscribeAudioRequest } from "./audio.types";
+import { axiosMainInstance } from "@/utils/tokenGeneration";
+import { rejectWithError } from "@/utils/errorHandling";
 
-// Async thunk to transcribe audio
-export const transcribeAudio = createAsyncThunk(
-    'audio/transcribe',
-    async (audioBase64: string, thunkAPI) => {
-        try {
-            const response = await axiosMainInstance.post(
-                '/ai/transcribe',
-                { audioBase64 },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    withCredentials: true, // if auth required
-                }
-            );
-            return response.data.transcription;
-        } catch (error: unknown) {
-            if (error instanceof Error)
-                return thunkAPI.rejectWithValue(error.message);
-            return thunkAPI.rejectWithValue('Transcription failed');
-        }
+
+export const transcribeAudio = createAsyncThunk<
+    string,
+    TranscribeAudioRequest,
+    { rejectValue: string }
+>("audio/response", async ({ audiobase64 }, thunkAPI) => {
+    try {
+        const res = await axiosMainInstance.post("/ai/transcribe", { audioBase64: audiobase64 });
+        console.log("Transcription response:", res.data.transcription);
+        return res.data.transcription;
+    } catch (error) {
+        return rejectWithError(error, thunkAPI, "Something unexpected happened")
     }
-);
+})
 
 const initialState: AudioState = {
-    audioBase64: null,
-    transcription: '',
-    loading: false,
-    error: null,
-};
+    transcribe: '',
+    isRecording: false,
+    isLoading: false,
+    errorMessage: null,
+}
 
-const audioSlice = createSlice({
-    name: 'audio',
+export const audioSlice = createSlice({
+    name: "audio",
     initialState,
     reducers: {
-        setAudioBase64(state, action: PayloadAction<string | null>) {
-            state.audioBase64 = action.payload;
+        resetTranscription: (state) => {
+            state.transcribe = '';
         },
-        clearAudio(state) {
-            state.audioBase64 = null;
-            state.transcription = '';
-            state.error = null;
+        startRecording: (state) => {
+            state.isRecording = true;
         },
+        stopRecording: (state) => {
+            state.isRecording = false;
+        }
     },
     extraReducers: (builder) => {
         builder
             .addCase(transcribeAudio.pending, (state) => {
-                state.loading = true;
-                state.error = null;
+                state.isLoading = true;
+                state.errorMessage = null;
             })
-            .addCase(transcribeAudio.fulfilled, (state, action: PayloadAction<string>) => {
-                state.loading = false;
-                state.transcription = action.payload;
+            .addCase(transcribeAudio.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.errorMessage = null;
+                state.transcribe = action.payload;
             })
             .addCase(transcribeAudio.rejected, (state, action) => {
-                state.loading = false;
-                if (typeof action.payload === 'string') {
-                    state.error = action.payload;
-                } else {
-                    state.error = 'An unknown error occurred';
-                }
-            });
+                state.isLoading = false;
+                state.errorMessage = action.payload ?? "Something unexpected happened";
+            })
     },
-});
+})
 
-export const { setAudioBase64, clearAudio } = audioSlice.actions;
+export const { startRecording, stopRecording, resetTranscription } = audioSlice.actions
 export default audioSlice.reducer;
