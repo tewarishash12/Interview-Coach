@@ -3,16 +3,10 @@ const Sentiment = require('sentiment');
 const tokenizer = require('../utils/tokenizer');
 
 const sentiment = new Sentiment();
-const grammarTool = new natural.Spellcheck([]); // simple placeholder
+const grammarTool = new natural.Spellcheck([]); // placeholder
 
-/**
- * Evaluates the tone, keyword relevance, and grammar of a given text.
- * @param {string} transcript - The transcribed text or resume content.
- * @param {string[]} expectedKeywords - List of job-relevant keywords.
- * @returns {Object} Evaluation report with tone, grammar, and keyword metrics.
- */
-const evaluateText = (transcript, expectedKeywords = []) => {
-    // 1. Tone/Sentiment Analysis
+const evaluateText = ({ question, transcript, expectedKeywords = [] }) => {
+    // 1. Sentiment analysis
     const sentimentResult = sentiment.analyze(transcript);
     const toneScore = sentimentResult.comparative;
     const toneLabel =
@@ -27,23 +21,37 @@ const evaluateText = (transcript, expectedKeywords = []) => {
     const keywordMatches = tokens.filter((token) =>
         expectedKeywords.includes(token.toLowerCase())
     );
-    const keywordDensity =
+    const keywordDensityRaw =
         expectedKeywords.length > 0
             ? keywordMatches.length / expectedKeywords.length
             : 0;
+    const keywordDensityScore = +(keywordDensityRaw * 10).toFixed(2);
 
-    // 3. Basic Grammar Score (placeholder logic)
+    // 3. Grammar Score (basic logic)
     const wordCount = tokens.length;
     const spellingErrors = tokens.filter((word) => !grammarTool.isCorrect(word));
-    const grammarScore = wordCount > 0 ? 1 - spellingErrors.length / wordCount : 1;
+    const grammarAccuracyRaw = wordCount > 0 ? 1 - spellingErrors.length / wordCount : 1;
+    const grammarScore = +(grammarAccuracyRaw * 10).toFixed(2);
+
+    // 4. Relevance Score
+    const questionTokens = tokenizer(question.toLowerCase());
+    const relevanceRaw =
+        questionTokens.length > 0
+            ? questionTokens.filter((qt) => tokens.includes(qt)).length / questionTokens.length
+            : 0;
+    const relevanceScore = +(relevanceRaw * 10).toFixed(2);
+
+    // 5. Tone Score normalization (from comparative, normalize to 0–10)
+    const normalizedToneScore = Math.min(Math.max((toneScore + 1) * 5, 0), 10).toFixed(2); // mapping [-1,1] to [0,10]
 
     return {
         tone: toneLabel,
-        toneScore: toneScore.toFixed(2),
-        keywordDensity: (keywordDensity * 100).toFixed(2) + '%',
-        grammarScore: (grammarScore * 100).toFixed(2) + '%',
+        toneScore: +normalizedToneScore,
+        keywordDensity: keywordDensityScore,
+        grammarScore,
+        relevanceScore,
         totalTokens: wordCount,
-        spellingErrors,
+        spellingErrors: spellingErrors.length,
     };
 };
 
