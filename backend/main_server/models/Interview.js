@@ -7,18 +7,32 @@ const interviewSchema = new mongoose.Schema(
             ref: 'User',
             required: true,
         },
+        resume: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Resume',
+        },
         questions: [
             {
                 question: { type: String, required: true },
+                expectedKeywords: { type: [String], required: true },
                 answer: { type: String },
-                feedback: { type: String },
-                score: { type: Number },
+                feedback: {
+                    tone: { type: String },
+                    toneScore: { type: Number },
+                    keywordDensity: { type: Number },
+                    grammarScore: { type: Number },
+                    relevanceScore: { type: Number },
+                    totalTokens: { type: Number },
+                    spellingErrors: { type: Number },
+                },
+                score: { type: Number }
             },
         ],
         jobRole: {
             type: String,
             required: true,
         },
+        status: { type: String, enum: ["completed", "incomplete"], default: "completed" },
         conductedAt: {
             type: Date,
             default: Date.now,
