@@ -21,7 +21,10 @@ mongoConnect();
 
 
 // Middleware
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+    origin: process.env.FRONTEND_URL, 
+    credentials: true 
+}));
 app.use(cookieParser());
 app.use(morgan('dev'));
 app.use('/uploads', express.static(path.join(__dirname,'uploads')));

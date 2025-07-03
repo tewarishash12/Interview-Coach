@@ -44,12 +44,12 @@ exports.login = async (req, res) => {
         res.cookie('access_token', access_token, {
             httpOnly: true,
             secure: isProduction,
-            sameSite: isProduction ? 'Strict' : 'Lax',
+            sameSite: isProduction ? 'Strict' : 'None',
         });
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,
             secure: isProduction,
-            sameSite: isProduction ? 'Strict' : 'Lax'
+            sameSite: isProduction ? 'Strict' : 'None'
         });
 
         const userData = {_id:userInfo._id, email:userInfo.email, name:userInfo.name}
@@ -75,12 +75,12 @@ exports.refreshToken = async (req, res) => {
             res.cookie('access_token', access_token, {
                 httpOnly: true,
                 secure: isProduction,
-                sameSite: isProduction ? 'Strict' : 'Lax'
+                sameSite: isProduction ? 'Strict' : 'None'
             });
             res.cookie('refresh_token', refreshToken, {
                 httpOnly: true,
                 secure: isProduction,
-                sameSite: isProduction ? 'Strict' : 'Lax'
+                sameSite: isProduction ? 'Strict' : 'None'
             });
             res.status(201).json({ message: "New access token was generated for the current session" });
         })
