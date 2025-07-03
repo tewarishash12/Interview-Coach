@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 export default function RegisterPage() {
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const {isLoading,errorMessage} = useAppSelector((state)=>state.auth);
+    const {isRegisteringIn,errorMessage} = useAppSelector((state)=>state.auth);
     
     const [ name,setName ] = useState("");
     const [ email,setEmail ] = useState("");
@@ -36,7 +36,7 @@ export default function RegisterPage() {
                     <InputField
                         name="name"
                         type="text"
-                        placeholder="Name"
+                        placeholder="John Doe"
                         value={name}
                         onChange={(e)=>setName(e.target.value)}
                         required
@@ -44,7 +44,7 @@ export default function RegisterPage() {
                     <InputField
                         name="email"
                         type="email"
-                        placeholder="Email"
+                        placeholder="johndoe@xyz.com"
                         value={email}
                         onChange={(e)=>setEmail(e.target.value)}
                         required
@@ -52,16 +52,16 @@ export default function RegisterPage() {
                     <InputField
                         name="password"
                         type="password"
-                        placeholder="Password"
+                        placeholder="john@123"
                         value={password}
                         onChange={(e)=>setPassword(e.target.value)}
                         required
                     />
                     <Button1
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isRegisteringIn}
                     >
-                        {isLoading ? "Registering..." : "Register"}
+                        {isRegisteringIn ? "Registering..." : "Register"}
                     </Button1>
                 </form>
                 {errorMessage && (

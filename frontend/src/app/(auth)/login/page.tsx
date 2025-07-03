@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const { isLoading, errorMessage } = useAppSelector((state) => state.auth)
+    const { isLoggingIn, errorMessage } = useAppSelector((state) => state.auth)
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -32,7 +32,7 @@ export default function LoginPage() {
                     <InputField
                         name="email"
                         type="email"
-                        placeholder="Email"
+                        placeholder="johndoe@xyz.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -40,16 +40,16 @@ export default function LoginPage() {
                     <InputField
                         name="password"
                         type="password"
-                        placeholder="Password"
+                        placeholder="john@123"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
                     <Button1
                         type="submit"
-                        disabled={isLoading}
+                        disabled={isLoggingIn}
                     >
-                        {isLoading ? "Logging In" :"Login"}
+                        {isLoggingIn ? "Logging In" :"Login"}
                     </Button1>
                 </form>
                 {errorMessage && (
