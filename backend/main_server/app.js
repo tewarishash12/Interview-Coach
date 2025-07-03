@@ -24,7 +24,7 @@ mongoConnect();
 app.use(cors({ origin: true, credentials: true }));
 app.use(cookieParser());
 app.use(morgan('dev'));
-app.use('/uploads', express.static(path.join(__dirname, process.env.UPLOAD_DIR)));
+app.use('/uploads', express.static(path.join(__dirname,'uploads')));
 
 // Routes
 app.use('/resume', resumeRoutes);
