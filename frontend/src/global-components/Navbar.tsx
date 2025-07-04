@@ -8,12 +8,12 @@ import { useRouter } from "next/navigation";
 
 export default function Navbar() {
     const router = useRouter();
-    const { isAuthenticated,isLoggingOut } = useAppSelector((state) => state.auth);
+    const { isAuthenticated, isLoggingOut } = useAppSelector((state) => state.auth);
     const dispatch = useAppDispatch();
 
-    async function handleLogout(){
+    async function handleLogout() {
         const res = await dispatch(logoutUser());
-        if(logoutUser.fulfilled.match(res))
+        if (logoutUser.fulfilled.match(res))
             router.push("/")
     }
 
@@ -25,18 +25,22 @@ export default function Navbar() {
                 </Link>
                 <div className="hidden md:flex space-x-4 text-gray-700 font-medium">
                     <Link href="/">Home</Link>
-                    {isAuthenticated ? (
-                        <>
-                            <Link href="/dashboard">Dashboard</Link>
-                            <Link href="/history">Practice History</Link>
-                        </>
-                    ) : (
-                        <>
-                            <Link href="/resume-upload">Resume Upload</Link>
-                            <Link href="/resume">Resumes</Link>
-                            <Link href="/interview">Interviews</Link>
-                        </>
-                    )}
+                    {isAuthenticated ?
+                        (
+                            <>
+                                <Link href="/resume-upload">Resume Upload</Link>
+                                <Link href="/resume">Resumes</Link>
+                                <Link href="/interview">Interviews</Link>
+                            </>
+                        )
+                        :
+                        (
+                            <>
+                                <Link href="/dashboard">Dashboard</Link>
+                                <Link href="/history">Practice History</Link>
+                            </>
+                        )
+                    }
                 </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -57,9 +61,9 @@ export default function Navbar() {
                             </Button2>
                         </Link>
                         <Button1
-                        onClick={handleLogout}
+                            onClick={handleLogout}
                         >
-                            {isLoggingOut? "Logging Out" : "Logout"}
+                            {isLoggingOut ? "Logging Out" : "Logout"}
                         </Button1>
                     </>
                 )}
