@@ -40,28 +40,20 @@ const initialState: ResumeState = {
     loading: false,
     errorMessage: null,
     file: null,
-    resumeText: '',
     uploadSuccess: false,
     showPreview: false,
     showJobRoleModal: false,
-    resumeId: '',
 }
 
 const resumeSlice = createSlice({
     name: "resume",
     initialState,
     reducers: {
-        setResumeId: (state, action) => {
-            state.resumeId = action.payload;
-        },
         setFile: (state, action: PayloadAction<File | null>) => {
             state.file = action.payload;
         },
         removeFile: (state) => {
             state.file = null;
-        },
-        setResumeText: (state, action: PayloadAction<string>) => {
-            state.resumeText = action.payload;
         },
         setUploadSuccess: (state, action: PayloadAction<boolean>) => {
             state.uploadSuccess = action.payload;
@@ -88,13 +80,13 @@ const resumeSlice = createSlice({
                 state.errorMessage = null;
             })
             .addCase(uploadResume.fulfilled, (state, action) => {
-                const { resume, resumeId, extractedText } = action.payload;
+                const { resume,resumeId,interviewId } = action.payload;
 
                 state.loading = false;
                 state.uploadSuccess = true;
-                state.resumeText = extractedText;
-                state.resumeId = resumeId;
-                state.resumes.push(resume); // ✅ push into array
+                state.resumes.push(resume);
+                localStorage.setItem("resumeId", resumeId);
+                localStorage.setItem("interviewId", interviewId);
             })
             .addCase(uploadResume.rejected, (state, action) => {
                 state.loading = false;
@@ -116,5 +108,5 @@ const resumeSlice = createSlice({
     }
 })
 
-export const { setFile, removeFile, setResumeText, setUploadSuccess, setShowPreview, setShowJobRoleModal, setResumeId, resetResumeState } = resumeSlice.actions;
+export const { setFile, removeFile, setUploadSuccess, setShowPreview, setShowJobRoleModal, resetResumeState } = resumeSlice.actions;
 export default resumeSlice.reducer;

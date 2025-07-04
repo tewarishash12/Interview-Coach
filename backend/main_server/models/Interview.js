@@ -15,24 +15,23 @@ const interviewSchema = new mongoose.Schema(
             {
                 question: { type: String, required: true },
                 expectedKeywords: { type: [String], required: true },
-                answer: { type: String },
+                answer: { type: String, default:"unattempted" },
                 feedback: {
-                    tone: { type: String },
-                    toneScore: { type: Number },
-                    keywordDensity: { type: Number },
-                    grammarScore: { type: Number },
-                    relevanceScore: { type: Number },
-                    totalTokens: { type: Number },
-                    spellingErrors: { type: Number },
+                    tone: { type: String, default:"unattempted" },
+                    toneScore: { type: Number, default:0 },
+                    keywordDensity: { type: Number, default:0 },
+                    grammarScore: { type: Number, default:0 },
+                    relevanceScore: { type: Number, default:0 },
+                    totalTokens: { type: Number, default:0 },
+                    spellingErrors: { type: Number, default:0 },
                 },
                 score: { type: Number }
             },
         ],
         jobRole: {
-            type: String,
-            required: true,
+            type: String
         },
-        status: { type: String, enum: ["completed", "incomplete"], default: "completed" },
+        status: { type: String, enum: ["completed", "incomplete"], default: "incomplete" },
         conductedAt: {
             type: Date,
             default: Date.now,
