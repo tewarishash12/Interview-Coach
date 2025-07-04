@@ -52,7 +52,9 @@ exports.getUserInterviews = async (req, res) => {
 
 exports.getInterviewById = async (req, res) => {
     try {
-        const interview = await Interview.findOne({ _id: req.params.id });
+        const {id} = req.params;
+        console.log(id);    
+        const interview = await Interview.findById({ _id: req.params.id });
 
         if (!interview) {
             return res.status(404).json({ error: 'Interview not found or access denied.' });
