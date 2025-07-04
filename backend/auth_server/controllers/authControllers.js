@@ -36,25 +36,12 @@ exports.login = async (req, res) => {
 
         const payload = { _id: userInfo._id };
         const access_token = generateAccessToken(payload);
-        const refreshToken = jwt.sign({ user: payload }, process.env.REFRESH_TOKEN_SECRET);
-        refreshTokens.add(refreshToken);
-
-        const isProduction = process.env.NODE_ENV === "production";
-        // Set tokens as cookies
-        res.cookie('access_token', access_token, {
-            httpOnly: true,
-            secure: isProduction,
-            sameSite: 'None',
-        });
-        res.cookie('refresh_token', refreshToken, {
-            httpOnly: true,
-            secure: isProduction,
-            sameSite: 'None'
-        });
+        const refresh_token = jwt.sign({ user: payload }, process.env.REFRESH_TOKEN_SECRET);
+        refreshTokens.add(refresh_token);
 
         const userData = {_id:userInfo._id, email:userInfo.email, name:userInfo.name}
 
-        res.status(201).json({ message: "User logged in successfully", user:userData });
+        res.status(201).json({ message: "User logged in successfully", access_token, refresh_token, user:userData });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -62,30 +49,26 @@ exports.login = async (req, res) => {
 
 exports.refreshToken = async (req, res) => {
     try {
-        const refreshToken = req.cookies.refresh_token;
-        if (!(refreshTokens.has(refreshToken)))
-            return res.status(400).json({ mesage: "Requested session doesn't exist" });
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer "))
+            return res.status(401).json({ message: "Refresh token missing" });
 
-        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, data) => {
-            if (err)
-                return res.status(403).json({ message: "Token isn't valid for any active session" });
+        const refresh_token = authHeader.split(" ")[1];
+        if (!refreshTokens.has(refresh_token))
+            return res.status(400).json({ message: "Session doesn't exist" });
 
-            const access_token = generateAccessToken(data.user)
-            const isProduction = process.env.NODE_ENV === "production";
-            res.cookie('access_token', access_token, {
-                httpOnly: true,
-                secure: isProduction,
-                sameSite: 'None'
+        jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET, (err, data) => {
+            if (err) return res.status(403).json({ message: "Invalid refresh token" });
+
+            const newAccessToken = generateAccessToken(data.user);
+
+            return res.status(201).json({
+                message: "New access token generated",
+                access_token: newAccessToken
             });
-            res.cookie('refresh_token', refreshToken, {
-                httpOnly: true,
-                secure: isProduction,
-                sameSite: 'None'
-            });
-            res.status(201).json({ message: "New access token was generated for the current session" });
-        })
+        });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        return res.status(500).json({ message: err.message });
     }
 }
 
