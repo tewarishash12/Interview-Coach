@@ -4,9 +4,9 @@ export interface ResumeUpload {
 
 export interface ResumeUploadResponse {
     message:string;
-    resumeId:string;
-    extractedText: string;
     resume:Resume;
+    resumeId:string,
+    interviewId:string;
 }
 
 export interface Resume {
@@ -22,10 +22,7 @@ export interface ResumeState {
     loading:boolean;
     errorMessage:string | null;
     file: File | null;
-    resumeText: string;
     uploadSuccess: boolean;
     showPreview: boolean;
     showJobRoleModal: boolean;
-    resumeId?:string;
-    resume?: File;
 }

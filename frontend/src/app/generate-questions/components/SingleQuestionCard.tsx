@@ -3,7 +3,7 @@ import { CardLayout } from "@/global-components/Card";
 import { Button1, Button2 } from "@/global-components/Button";
 import VoiceRecorder from "./VoiceRecorder";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { answerFeedback, goToNextQuestion, saveAnswer, saveInterview, setShowConfirm, setSkippedQuestions } from "@/features/questions/questionSlice";
+import { answerFeedback, goToNextQuestion, setShowConfirm } from "@/features/questions/questionSlice";
 import ConfirmationModal from "./ConfirmationModal";
 import { useRouter } from "next/navigation";
 import FeedbackLoadingOverlay from "./FeedbackLoadingOverlay";
@@ -13,7 +13,7 @@ export default function SingleQuestionCard() {
     const dispatch = useAppDispatch();
     const router = useRouter();
 
-    const { jobRole, resumeId, questions, showConfirm, current } = useAppSelector((state) => state.question);
+    const { questions, showConfirm, current } = useAppSelector((state) => state.question);
     const { isLoading, transcribe } = useAppSelector((state) => state.audio);
     const question = questions[current];
 
@@ -25,17 +25,16 @@ export default function SingleQuestionCard() {
         return <div>Loading question...</div>;
     }
 
-    function confirmSkip() {
+    async function confirmSkip() {
         dispatch(setShowConfirm(false));
-        dispatch(setSkippedQuestions());
 
+        const data = { question: question.question, expectedKeywords: question.expectedKeywords || [], transcript: 'unattempted', interviewId: localStorage.getItem('interviewId') ?? '' };
+        await dispatch(answerFeedback(data));
         if (current + 1 < questions.length) {
-            // Not the last question
             dispatch(goToNextQuestion());
         } else {
             // Last question, save the interview
-            dispatch(saveInterview({ questions, jobRole, resumeId }));
-            router.push("/");
+            router.push(`/interview/${localStorage.getItem("interviewId")}`);
         }
     }
 
@@ -44,8 +43,7 @@ export default function SingleQuestionCard() {
         if (!transcribe)
             return alert("Record you answer before clicking submit");
 
-        dispatch(saveAnswer(transcribe))
-        const data = { question: question.question, expectedKeywords: question.expectedKeywords || [], transcript: transcribe };
+        const data = { question: question.question, expectedKeywords: question.expectedKeywords || [], transcript: transcribe, interviewId: localStorage.getItem('interviewId') ?? '' };
 
         const res = await dispatch(answerFeedback(data));
         if (answerFeedback.fulfilled.match(res)) {
@@ -53,8 +51,7 @@ export default function SingleQuestionCard() {
                 dispatch(goToNextQuestion());
                 dispatch(resetTranscription());
             } else {
-                dispatch(saveInterview({ questions, jobRole, resumeId }))
-                router.push("/"); // Change to your target route
+                router.push(`/interview/${localStorage.getItem("interviewId")}`); // Change to your target route
             }
         }
     }
