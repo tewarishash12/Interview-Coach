@@ -12,6 +12,8 @@ export interface UserCredentials {
 
 export interface AuthLoginResponse {
     message:string;
+    access_token:string;
+    refresh_token: string;
     user:UserCredentials
 }
 

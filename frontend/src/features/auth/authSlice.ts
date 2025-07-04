@@ -98,6 +98,8 @@ const authSlice = createSlice({
                 state.errorMessage = null;
                 state.user = action.payload.user;
                 state.isAuthenticated = true;
+                localStorage.setItem("access_token", action.payload.access_token);
+                localStorage.setItem("refresh_token", action.payload.refresh_token);
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.isLoggingIn = false;
@@ -114,6 +116,8 @@ const authSlice = createSlice({
                 state.isAuthenticated = false;
                 state.isLoggingOut = false;
                 state.errorMessage = null;
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("refresh_token");
             })
 
             //fetchuserdata call
