@@ -23,7 +23,7 @@ mongoConnect();
 // Middleware
 app.use(express.json({limit: '20mb'}));
 app.use(cors({
-    origin: process.env.FRONTEND_URL, 
+    origin: true, 
     credentials: true 
 }));
 app.use(cookieParser());
