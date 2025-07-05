@@ -31,7 +31,8 @@ export const getInterviewById = createAsyncThunk<
 
 const initialState: InitialInterviewState = {
     interviews: [],
-    isLoading: false,
+    isLoadingInterviews: false,
+    isLoadingInterview: false,
     errorMessage: null
 }
 
@@ -42,29 +43,29 @@ export const interviewSlice = createSlice({
     extraReducers:(builder) => {
         builder
         .addCase(fetchUserInterviews.pending, (state)=>{
-            state.isLoading = true;
+            state.isLoadingInterviews = true;
             state.errorMessage = null;
         })
         .addCase(fetchUserInterviews.fulfilled, (state,action)=>{
             state.interviews = action.payload
-            state.isLoading = false;
+            state.isLoadingInterviews = false;
             state.errorMessage = null;
         })
         .addCase(fetchUserInterviews.rejected, (state,action)=>{
-            state.isLoading = false;
+            state.isLoadingInterviews = false;
             state.errorMessage = action.payload ?? "Something unexpected happened";
         })
-        //getch single interview
+        //fetch single interview
         .addCase(getInterviewById.pending, (state)=>{
-            state.isLoading = true;
+            state.isLoadingInterview = true;
             state.errorMessage = null;
         })
         .addCase(getInterviewById.fulfilled, (state)=>{
-            state.isLoading = false;
+            state.isLoadingInterview = false;
             state.errorMessage = null;
         })
         .addCase(getInterviewById.rejected, (state,action)=>{
-            state.isLoading = false;
+            state.isLoadingInterview = false;
             state.errorMessage = action.payload ?? "Something unexpected happened";
         })
 

@@ -19,7 +19,7 @@ const ACCEPTED_TYPES = [
 export default function ResumeUploadForm() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const { errorMessage, loading, file, uploadSuccess, showPreview, showJobRoleModal } = useAppSelector((state) => state.resume);
+    const { errorMessage, isUploadingResume, file, uploadSuccess, showPreview, showJobRoleModal } = useAppSelector((state) => state.resume);
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -89,8 +89,8 @@ export default function ResumeUploadForm() {
                             <Button2 onClick={clearFile}>Remove</Button2>
                             <Button2 onClick={() => dispatch(setShowPreview(true))}>Preview</Button2>
                         </div>
-                        <Button1 onClick={handleUpload} disabled={loading}>
-                            Submit
+                        <Button1 onClick={handleUpload} disabled={isUploadingResume}>
+                            {isUploadingResume ? "Uploading Resume..." : "Submit"}
                         </Button1>
                     </div>
                 )}
@@ -98,7 +98,7 @@ export default function ResumeUploadForm() {
 
             <div className="mt-4">
                 <UploadStatus
-                    loading={loading}
+                    isUploadingResume={isUploadingResume}
                     errorMessage={errorMessage}
                     success={uploadSuccess}
                     onRetry={handleUpload}

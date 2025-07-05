@@ -1,19 +1,19 @@
 import { Button2 } from "@/global-components/Button";
 
 export default function UploadStatus({
-    loading,
+    isUploadingResume,
     errorMessage,
     onRetry,
     success
 }: {
-    loading: boolean;
+    isUploadingResume: boolean;
     errorMessage: string | null;
     success: boolean;
     onRetry: () => void;
 }) {
-    if (!loading && !errorMessage && !success) return null;
+    if (!isUploadingResume && !errorMessage && !success) return null;
 
-    if (loading) {
+    if (isUploadingResume) {
         return (
             <div className="flex items-center space-x-2 text-purple-500">
                 <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
