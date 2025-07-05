@@ -1,6 +1,7 @@
-import HeroSection from "@/app/components/HeroSection";
-import FeatureHighlights from "@/app/components/FeaturedHighlights";
+import HeroSection from "./components/HeroSection";
+import FeatureHighlights from "./components/FeaturedHighlights";
 import FAQAccordion from "./components/FAQAccordion";
+import FeedbackForm from "./components/FeedbackForm";
 
 export default function HomePage() {
   return (
@@ -8,6 +9,7 @@ export default function HomePage() {
       <HeroSection />
       <FeatureHighlights />
       <FAQAccordion />
+      <FeedbackForm />
     </div>
   );
 }
