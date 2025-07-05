@@ -5,6 +5,15 @@ export type ButtonProps  = React.ButtonHTMLAttributes<HTMLButtonElement> & {
     className ?: string;
 }
 
+export interface TextAreaFieldProps {
+    name: string;
+    placeholder?: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    required?: boolean;
+    rows?: number;
+}
+
 export type CardProps = {
     children: React.ReactNode
     className ?: string;
@@ -17,5 +26,6 @@ export type InputFieldProps = {
     value?: string | number;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     required?: boolean;
+    multiple?: boolean
     className?: string;
 }
