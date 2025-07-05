@@ -35,7 +35,7 @@ export function ResumeCard({ resume }: { resume: Resume }) {
                         Download
                     </Link>
                 </Button2>
-                <Button1 onClick={() => router.push(`/interview/${resume._id}`)}>Go to Interview</Button1>
+                <Button1 onClick={() => router.push(`/interview?resumeId=${resume._id}`)}>Go to Interview</Button1>
             </div>
             <ResumePreviewModal resume={previewResume} />
         </CardLayout>
