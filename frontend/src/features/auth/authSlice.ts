@@ -38,7 +38,11 @@ export const logoutUser = createAsyncThunk<
     }
 >("user/logout", async (_, thunkAPI) => {
     try {
-        const res = await axiosAuthInstance.post("/auth/logout");
+        const res = await axiosAuthInstance.post("/auth/logout", {}, {
+            headers:{
+                Authorization: `Bearer ${localStorage.getItem("refresh_token")}`
+            }
+        });
         return res.data;
     } catch (error) {
         return rejectWithError(error, thunkAPI, "Login Failed");
