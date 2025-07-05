@@ -40,7 +40,8 @@ export const answerFeedback = createAsyncThunk<
 const initialState: InitialQuestionState = {
     jobRole: '',
     questions: [],
-    isLoading: false,
+    isLoadingQuestions: false,
+    isLoadingFeedback:false,
     errorMessage: null,
     current: 0,
     showConfirm: false,
@@ -63,32 +64,32 @@ export const questionSlice = createSlice({
         builder
             // for generating questions
             .addCase(generateQuestions.pending, (state) => {
-                state.isLoading = true;
+                state.isLoadingQuestions = true;
                 state.errorMessage = null;
             })
             .addCase(generateQuestions.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.isLoadingQuestions = false;
                 state.errorMessage = null;
                 state.questions = action.payload;
             })
             .addCase(generateQuestions.rejected, (state, action) => {
-                state.isLoading = false;
+                state.isLoadingQuestions = false;
                 state.errorMessage = action.payload ?? "Something unexpected happened";
             })
             //feedback buiders
             .addCase(answerFeedback.pending, (state) => {
-                state.isLoading = true;
+                state.isLoadingFeedback = true;
                 state.errorMessage = null;
                 state.showFeedback = false;
             })
             .addCase(answerFeedback.fulfilled, (state) => {
-                state.isLoading = false;
+                state.isLoadingFeedback = false;
                 state.errorMessage = null;
                 state.showFeedback = false;
             })
             .addCase(answerFeedback.rejected, (state, action) => {
                 state.showFeedback = false;
-                state.isLoading = false
+                state.isLoadingFeedback = false
                 state.errorMessage = action.payload ?? "Something unexpected happened";
             })
     }

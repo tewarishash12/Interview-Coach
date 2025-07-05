@@ -17,7 +17,8 @@ export interface InterviewQuestions {
 export interface InitialQuestionState {
     jobRole: string;
     questions: InterviewQuestions[];
-    isLoading: boolean;
+    isLoadingQuestions: boolean;
+    isLoadingFeedback:boolean;
     errorMessage: string | null;
     current: number;
     showConfirm: boolean;

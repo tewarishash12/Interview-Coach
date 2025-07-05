@@ -19,7 +19,8 @@ export interface Resume {
 
 export interface ResumeState {
     resumes: Resume[];
-    loading:boolean;
+    isUploadingResume:boolean;
+    isLoadingResumes:boolean;
     errorMessage:string | null;
     file: File | null;
     uploadSuccess: boolean;

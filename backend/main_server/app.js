@@ -14,6 +14,7 @@ const resumeRoutes = require('./routes/resumeRoutes');
 const interviewRoutes = require('./routes/interviewRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
+const contactRoutes = require("./routes/contactRoute")
 const { authMiddleware } = require('./middleware/authMiddleware');
 
 dotenv.config();
@@ -35,6 +36,7 @@ app.use('/resume', resumeRoutes);
 app.use('/interview', interviewRoutes);
 app.use('/ai', aiRoutes);
 app.use('/feedback', feedbackRoutes);
+app.use('/contact', contactRoutes);
 
 app.get("/users/me", authMiddleware, async (req,res) =>{
     try {

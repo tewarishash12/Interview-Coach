@@ -14,7 +14,7 @@ export default function SingleQuestionCard() {
     const router = useRouter();
 
     const { questions, showConfirm, current } = useAppSelector((state) => state.question);
-    const { isLoading, transcribe } = useAppSelector((state) => state.audio);
+    const { isLoadingAudio, transcribe } = useAppSelector((state) => state.audio);
     const question = questions[current];
 
     function handleSkip() {
@@ -68,7 +68,7 @@ export default function SingleQuestionCard() {
                 <Button2 onClick={handleSkip}>Skip Question</Button2>
                 <Button1
                     onClick={handleSubmit}
-                    disabled={isLoading}>
+                    disabled={isLoadingAudio}>
                     Submit Answer
                 </Button1>
             </div>
@@ -80,7 +80,7 @@ export default function SingleQuestionCard() {
                 />
             )}
 
-            {isLoading && <FeedbackLoadingOverlay />}
+            {isLoadingAudio && <FeedbackLoadingOverlay />}
         </CardLayout>
     );
 }

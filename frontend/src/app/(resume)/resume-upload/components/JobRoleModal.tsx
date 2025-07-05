@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { CardLayout } from "@/global-components/Card";
 import { Button1, Button2 } from "@/global-components/Button";
+import { useAppSelector } from "@/store";
 
 export default function JobRoleModal({ onSubmit, onClose }: { onSubmit: (role: string) => void, onClose: () => void }) {
     const [role, setRole] = useState("");
+    const {isLoadingQuestions} = useAppSelector((state)=>state.question)
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -38,7 +40,12 @@ export default function JobRoleModal({ onSubmit, onClose }: { onSubmit: (role: s
                     />
                     <div className="flex gap-2 justify-end">
                         <Button2 type="button" onClick={onClose}>Cancel</Button2>
-                        <Button1 type="submit">Continue</Button1>
+                        <Button1 
+                        type="submit"
+                        disabled={isLoadingQuestions}
+                        >
+                            {isLoadingQuestions ? "Loading Questions..." : "Continue"}
+                        </Button1>
                     </div>
                 </form>
             </CardLayout>

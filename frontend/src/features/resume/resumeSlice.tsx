@@ -37,7 +37,8 @@ export const getAllResumes = createAsyncThunk<
 
 const initialState: ResumeState = {
     resumes: [],
-    loading: false,
+    isUploadingResume: false,
+    isLoadingResumes: false,
     errorMessage: null,
     file: null,
     uploadSuccess: false,
@@ -76,33 +77,33 @@ const resumeSlice = createSlice({
         builder
             //upload resume code
             .addCase(uploadResume.pending, (state) => {
-                state.loading = true;
+                state.isUploadingResume = true;
                 state.errorMessage = null;
             })
             .addCase(uploadResume.fulfilled, (state, action) => {
                 const { resume,resumeId,interviewId } = action.payload;
 
-                state.loading = false;
+                state.isUploadingResume = false;
                 state.uploadSuccess = true;
                 state.resumes.push(resume);
                 localStorage.setItem("resumeId", resumeId);
                 localStorage.setItem("interviewId", interviewId);
             })
             .addCase(uploadResume.rejected, (state, action) => {
-                state.loading = false;
+                state.isUploadingResume = false;
                 state.errorMessage = action.payload ?? "Something unexpected happened";
             })
             //get uploaded resumes
             .addCase(getAllResumes.pending, (state) => {
-                state.loading = true;
+                state.isLoadingResumes = true;
                 state.errorMessage = null;
             })
             .addCase(getAllResumes.fulfilled, (state, action) => {
-                state.loading = false;
+                state.isLoadingResumes = false;
                 state.resumes = action.payload; // ✅ Replace existing resumes with fetched ones
             })
             .addCase(getAllResumes.rejected, (state, action) => {
-                state.loading = false;
+                state.isLoadingResumes = false;
                 state.errorMessage = action.payload ?? "Failed to fetch resumes";
             });
     }

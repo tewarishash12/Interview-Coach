@@ -74,12 +74,14 @@ exports.refreshToken = async (req, res) => {
 
 exports.logout = async (req, res) => {
     try {
-        const refreshToken = req.cookies.refresh_token;
-        if (!(refreshTokens.has(refreshToken)))
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer "))
+            return res.status(401).json({ message: "Refresh token missing" });
+
+        const refresh_token = authHeader.split(" ")[1];
+        if (!(refreshTokens.has(refresh_token)))
             return res.status(400).json({ message: "Session for this token doesn't exist" });
-        res.clearCookie('access_token');
-        res.clearCookie('refresh_token');
-        refreshTokens.delete(refreshToken);
+        refreshTokens.delete(refresh_token);
         res.status(200).json({ message: "Session has been successfully closed for the user" });
     } catch (err) {
         res.status(500).json({ message: err.message });

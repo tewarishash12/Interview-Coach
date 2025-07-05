@@ -62,6 +62,8 @@ export default function Navbar() {
                         </Link>
                         <Button1
                             onClick={handleLogout}
+                            disabled={isLoggingOut}
+                            
                         >
                             {isLoggingOut ? "Logging Out" : "Logout"}
                         </Button1>

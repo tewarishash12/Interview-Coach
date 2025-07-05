@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useAppDispatch } from "@/store";
 import { fetchUserInterviews } from "@/features/interview/interviewSlice";
 import { InterviewListHeader } from "./components/InterviewListHeader";
@@ -15,7 +15,9 @@ export default function InterviewListPage() {
     return (
         <div className="max-w-7xl mx-auto px-4 py-12">
             <InterviewListHeader />
-            <InterviewGrid />
+            <Suspense fallback={<div>Loading Interview&apos;s</div>}>
+                <InterviewGrid />
+            </Suspense>
         </div>
     );
 }

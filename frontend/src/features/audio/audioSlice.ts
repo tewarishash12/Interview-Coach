@@ -21,7 +21,7 @@ export const transcribeAudio = createAsyncThunk<
 const initialState: AudioState = {
     transcribe: '',
     isRecording: false,
-    isLoading: false,
+    isLoadingAudio: false,
     errorMessage: null,
 }
 
@@ -42,16 +42,16 @@ export const audioSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(transcribeAudio.pending, (state) => {
-                state.isLoading = true;
+                state.isLoadingAudio = true;
                 state.errorMessage = null;
             })
             .addCase(transcribeAudio.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.isLoadingAudio = false;
                 state.errorMessage = null;
                 state.transcribe = action.payload;
             })
             .addCase(transcribeAudio.rejected, (state, action) => {
-                state.isLoading = false;
+                state.isLoadingAudio = false;
                 state.errorMessage = action.payload ?? "Something unexpected happened";
             })
     },
