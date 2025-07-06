@@ -8,7 +8,8 @@ export default function FetchInformation() {
     const dispatch = useAppDispatch();
 
     useEffect(()=>{
-        dispatch(fetchUserData());
+        if(localStorage.getItem("refresh_token"))
+            dispatch(fetchUserData());
     },[dispatch])
 
     return null;

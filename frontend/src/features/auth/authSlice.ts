@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AuthActionResponse, AuthLoginResponse, InitialUserState } from "./auth.types";
 import { axiosAuthInstance, axiosMainInstance } from "@/utils/tokenGeneration";
 import { rejectWithError } from "@/utils/errorHandling";
@@ -78,7 +78,7 @@ export const fetchUserData = createAsyncThunk<
 const initialState: InitialUserState = {
     user: null,
     isRegisteringIn: false,
-    isVerifyingToken:false,
+    isVerifyingToken: false,
     isLoggingIn: false,
     isLoggingOut: false,
     isFetchingUser: false,
@@ -90,7 +90,20 @@ const initialState: InitialUserState = {
 const authSlice = createSlice({
     name: "auth",
     initialState,
-    reducers: {},
+    reducers: {
+        clearMessages: (state) => {
+            state.errorMessage = null;
+            state.successMessage = null;
+        },
+        setSuccessMessage: (state, action: PayloadAction<string>) => {
+            state.successMessage = action.payload;
+            state.errorMessage = null;
+        },
+        setErrorMessage: (state, action: PayloadAction<string>) => {
+            state.errorMessage = action.payload;
+            state.successMessage = null;
+        }
+    },
     extraReducers: (builder) => {
         builder
             //registerUser call states
@@ -175,5 +188,5 @@ const authSlice = createSlice({
     }
 })
 
-
+export const { clearMessages, setErrorMessage, setSuccessMessage } = authSlice.actions;
 export default authSlice.reducer;

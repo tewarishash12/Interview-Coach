@@ -3,24 +3,27 @@ import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { CardLayout } from "@/global-components/Card";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { verifyEmail } from "@/features/auth/authSlice";
+import { clearMessages, verifyEmail } from "@/features/auth/authSlice";
 
 export default function VerifyEmailPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const { isVerifyingToken } = useAppSelector((state) => state.auth);
+    const { isVerifyingToken, errorMessage, successMessage } = useAppSelector((state) => state.auth);
 
     useEffect(() => {
+        dispatch(clearMessages());
+
         const token = searchParams.get("token");
         if (!token) return;
 
         async function mailVerification() {
             try {
-                await dispatch(verifyEmail(token ??'')).unwrap();
+                await dispatch(verifyEmail(token ?? '')).unwrap();
                 setTimeout(() => {
-                    router.push("/login");
-                }, 1000);
+                    dispatch(clearMessages());
+                    router.push("/login")
+                }, 1500);
             } catch (error) {
                 console.error("❌ Verification failed:", error);
             }
@@ -42,6 +45,8 @@ export default function VerifyEmailPage() {
                         <div className="text-gray-700 text-base">Verifying your email, please wait...</div>
                     </div>
                 )}
+                {errorMessage && <div className="text-red-500">{errorMessage}</div>}
+                {successMessage && <div className="text-green-500">{successMessage}</div>}
             </CardLayout>
         </section>
     );
