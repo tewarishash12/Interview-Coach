@@ -31,7 +31,7 @@ const interviewSchema = new mongoose.Schema(
         jobRole: {
             type: String
         },
-        status: { type: String, enum: ["completed", "incomplete"], default: "incomplete" },
+        status: { type: String, enum: ["completed", "incomplete"], default: "completed" },
         conductedAt: {
             type: Date,
             default: Date.now,
