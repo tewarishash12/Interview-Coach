@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
+const crypto = require("crypto");
+const { sendVerificationEmail } = require("../utils/mailer");
 require("dotenv").config();
 const refreshTokens = new Set();
 
@@ -8,19 +10,43 @@ exports.register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
         const userInfo = await User.findOne({ email: email });
-
+        
         if (userInfo)
             return res.status(404).json({ message: "User with this email exists, go to Login" });
-
+        
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt)
-        const user = new User({ name, email, password: hashedPassword });
+        
+        const verificationToken = crypto.randomBytes(32).toString("hex");
+        
+        const result = await sendVerificationEmail(email, verificationToken);
+        
+        const user = new User({ name, email, password: hashedPassword, verificationToken });
         await user.save();
+
         res.status(201).json({ message: "New user created successfully" });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 }
+
+exports.verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.query;
+        const user = await User.findOne({ verificationToken: token });
+        
+        if (!user)
+            return res.status(400).json({ message: "Invalid or expired verification token" });
+        
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        await user.save();
+
+        res.status(200).json({ message: "Email verified successfully. You can now login." });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
 
 exports.login = async (req, res) => {
     try {
@@ -29,6 +55,9 @@ exports.login = async (req, res) => {
 
         if (!userInfo)
             return res.status(404).json({ message: "User with requested username not found" });
+
+        if (!userInfo.isVerified)
+            return res.status(403).json({ message: "Please verify your email first" });
 
         const validation = await bcrypt.compare(password, userInfo.password);
         if (!validation)
@@ -39,9 +68,9 @@ exports.login = async (req, res) => {
         const refresh_token = jwt.sign({ user: payload }, process.env.REFRESH_TOKEN_SECRET);
         refreshTokens.add(refresh_token);
 
-        const userData = {_id:userInfo._id, email:userInfo.email, name:userInfo.name}
+        const userData = { _id: userInfo._id, email: userInfo.email, name: userInfo.name }
 
-        res.status(201).json({ message: "User logged in successfully", access_token, refresh_token, user:userData });
+        res.status(201).json({ message: "User logged in successfully", access_token, refresh_token, user: userData });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
