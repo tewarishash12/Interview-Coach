@@ -2,6 +2,7 @@ import "./globals.css";
 import { Providers } from "./components/Providers";
 import NavbarWrapper from "./components/ComponentWrapper";
 import FetchInformation from "@/app/components/FetchInformation"
+import { RouteGuard } from "@/global-components/RouteGuard";
 
 export default function RootLayout({
   children,
@@ -15,9 +16,11 @@ export default function RootLayout({
       >
         <Providers>
           <FetchInformation />
-          <NavbarWrapper>
-            {children}
-          </NavbarWrapper>
+          <RouteGuard>
+            <NavbarWrapper>
+              {children}
+            </NavbarWrapper>
+          </RouteGuard>
         </Providers>
       </body>
     </html>

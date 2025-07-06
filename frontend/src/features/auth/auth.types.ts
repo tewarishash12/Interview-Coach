@@ -21,8 +21,10 @@ export interface InitialUserState {
     user: UserCredentials | null;
     isLoggingIn: boolean;
     isRegisteringIn: boolean;
+    isVerifyingToken:boolean;
     isLoggingOut:boolean;
     isFetchingUser: boolean;
     isAuthenticated: boolean;
     errorMessage: string | null;
+    successMessage?: string | null;
 }

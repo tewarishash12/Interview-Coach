@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from '@/global-components/Navbar';
 import Footer from '@/global-components/Footer';
 
-const HIDDEN_PATHS = ['/login', '/register'];
+const HIDDEN_PATHS = ['/login', '/register', '/verify-email'];
 
 export default function NavbarWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();

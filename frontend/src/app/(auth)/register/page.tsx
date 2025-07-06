@@ -1,31 +1,33 @@
 // app/register/page.tsx
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CardLayout } from "@/global-components/Card";
 import { Button1 } from "@/global-components/Button";
 import { InputField } from "@/global-components/Input";
-import { useAppDispatch,useAppSelector } from "@/store";
-import { registerUser } from "@/features/auth/authSlice";
-import { useRouter } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { clearMessages, registerUser } from "@/features/auth/authSlice";
 
 export default function RegisterPage() {
     const dispatch = useAppDispatch();
-    const router = useRouter();
-    const {isRegisteringIn,errorMessage} = useAppSelector((state)=>state.auth);
-    
-    const [ name,setName ] = useState("");
-    const [ email,setEmail ] = useState("");
-    const [ password,setPassword ] = useState("");
+    const { isRegisteringIn, errorMessage, successMessage } = useAppSelector((state) => state.auth);
 
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
-    async function handleSubmit(e:React.FormEvent){
+    useEffect(() => {
+        dispatch(clearMessages());
+    }, [dispatch])
+
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
-        const result = await dispatch(registerUser({name,email,password}))
-        if (registerUser.fulfilled.match(result)){
-            router.push("/login");
-        }
+        await dispatch(registerUser({ name, email, password }))
+
+        setTimeout(() => {
+            dispatch(clearMessages());
+        }, 2000)
     }
 
     return (
@@ -38,7 +40,7 @@ export default function RegisterPage() {
                         type="text"
                         placeholder="John Doe"
                         value={name}
-                        onChange={(e)=>setName(e.target.value)}
+                        onChange={(e) => setName(e.target.value)}
                         required
                     />
                     <InputField
@@ -46,7 +48,7 @@ export default function RegisterPage() {
                         type="email"
                         placeholder="johndoe@xyz.com"
                         value={email}
-                        onChange={(e)=>setEmail(e.target.value)}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                     />
                     <InputField
@@ -54,16 +56,19 @@ export default function RegisterPage() {
                         type="password"
                         placeholder="john@123"
                         value={password}
-                        onChange={(e)=>setPassword(e.target.value)}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                     />
                     <Button1
-                    type="submit"
-                    disabled={isRegisteringIn}
+                        type="submit"
+                        disabled={isRegisteringIn}
                     >
                         {isRegisteringIn ? "Registering..." : "Register"}
                     </Button1>
                 </form>
+                {successMessage && (
+                    <div className="text-green-600 mt-2">{successMessage}</div>
+                )}
                 {errorMessage && (
                     <div className="text-red-500 mt-2">{errorMessage}</div>
                 )}
