@@ -8,7 +8,7 @@ import os
 
 app = FastAPI()
 
-model = whisper.load_model("base")  # load once at startup
+model = whisper.load_model("tiny")  # load once at startup
 
 class TranscriptionRequest(BaseModel):
     audio_base64: str

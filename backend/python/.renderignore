@@ -1,0 +1,7 @@
+tests/
+*.log
+*.wav
+*.mp3
+*.ipynb
+.env
+README.md

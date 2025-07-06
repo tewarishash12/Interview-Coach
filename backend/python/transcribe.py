@@ -3,8 +3,9 @@ import sys
 import whisper
 import json
 
+model = whisper.load_model("tiny")  # load once at startup
+
 def transcribe(audio_path):
-    model = whisper.load_model("tiny")  # You can use tiny, base, small, medium, large
     result = model.transcribe(audio_path)
     return result["text"]
 
