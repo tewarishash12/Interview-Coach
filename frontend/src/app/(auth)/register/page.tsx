@@ -1,12 +1,12 @@
 // app/register/page.tsx
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CardLayout } from "@/global-components/Card";
 import { Button1 } from "@/global-components/Button";
 import { InputField } from "@/global-components/Input";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { registerUser } from "@/features/auth/authSlice";
+import { clearMessages, registerUser } from "@/features/auth/authSlice";
 
 export default function RegisterPage() {
     const dispatch = useAppDispatch();
@@ -16,11 +16,18 @@ export default function RegisterPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    useEffect(() => {
+        dispatch(clearMessages());
+    }, [dispatch])
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
         await dispatch(registerUser({ name, email, password }))
+
+        setTimeout(() => {
+            dispatch(clearMessages());
+        }, 2000)
     }
 
     return (

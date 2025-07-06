@@ -11,15 +11,24 @@ exports.register = async (req, res) => {
         const { name, email, password } = req.body;
         const userInfo = await User.findOne({ email: email });
         
-        if (userInfo)
-            return res.status(404).json({ message: "User with this email exists, go to Login" });
+        if (userInfo){
+            if (!userInfo.isVerified) {
+                return res.status(400).json({
+                    message: "You have already registered but haven't verified your email. Please check your inbox for the verification link.",
+                });
+            } else {
+                return res.status(400).json({
+                    message: "User with this email already exists. Please login.",
+                });
+            }
+        }
         
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt)
         
         const verificationToken = crypto.randomBytes(32).toString("hex");
         
-        const result = await sendVerificationEmail(email, verificationToken);
+        await sendVerificationEmail(email, verificationToken);
         
         const user = new User({ name, email, password: hashedPassword, verificationToken });
         await user.save();
