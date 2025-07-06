@@ -19,18 +19,21 @@ class TranscriptionResponse(BaseModel):
 @app.post("/transcribe", response_model=TranscriptionResponse)
 def transcribe_audio(data: TranscriptionRequest):
     try:
-        # Decode base64 and save to temp file
+        print("Decoding audio...")
         audio_data = base64.b64decode(data.audio_base64)
+        
+        print("Saving to temp file...")
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_audio:
             temp_audio.write(audio_data)
             temp_path = temp_audio.name
 
-        # Transcribe
+        print(f"Saved to: {temp_path}, starting transcription...")
         result = model.transcribe(temp_path)
 
-        # Clean up
+        print("Transcription complete. Cleaning up.")
         os.remove(temp_path)
-
         return {"text": result["text"]}
+    
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print("Transcription failed:", str(e))
+        raise HTTPException(status_code=500, detail=f"Transcription error: {str(e)}")
