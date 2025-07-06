@@ -40,6 +40,7 @@ exports.evaluateTextFeedback = async (req, res) => {
                 totalTokens: 0,
                 spellingErrors: 0,
             };
+            interview.status = 'incomplete';
         } else {
             // 3B. Evaluate answer
             result = evaluateText({ question, transcript, expectedKeywords });
