@@ -32,6 +32,7 @@ export interface InterviewResponse {
 
 export interface InitialInterviewState {
     interviews: InterviewResponse[];
-    isLoading: boolean;
+    isLoadingInterviews: boolean;
+    isLoadingInterview: boolean;
     errorMessage: string | null;
 }

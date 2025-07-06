@@ -1,4 +1,6 @@
 const { generateAIContent, transcribeAudio } = require('../services/aiService');
+const Interview = require("../models/Interview");
+const Resume = require("../models/Resume");
 
 function cleanResponse(rawResponse) {
     const rawArray = rawResponse.questions;
@@ -12,11 +14,18 @@ function cleanResponse(rawResponse) {
 
 exports.generateQuestions = async (req, res) => {
     try {
-        const { jobRole, resumeText } = req.body;
+        const { jobRole, interviewId, resumeId } = req.body;
 
-        if (!jobRole) {
+        if (!jobRole || !interviewId || !resumeId) {
             return res.status(400).json({ error: 'Job role is required' });
         }
+
+        const resume = await Resume.findById(resumeId);
+        if (!resume) {
+            return res.status(404).json({ error: 'Resume not found' });
+        }
+
+        const resumeText = resume.extractedText;
 
         const prompt = `You are an expert technical recruiter and hiring manager.
 
@@ -43,12 +52,36 @@ exports.generateQuestions = async (req, res) => {
 
         const questionsText = await generateAIContent(prompt);
 
-        
+
         const rawResponse = {
             questions: questionsText.split('\n').filter(line => line.trim() !== '')
         };
 
         const questions = cleanResponse(rawResponse);
+
+        const formattedQuestions = questions.map(q => ({
+            question: q.question,
+            expectedKeywords: q.expectedKeywords,
+            answer: 'unattempted',
+            feedback: {
+                tone: 'unattempted',
+                toneScore: 0,
+                keywordDensity: 0,
+                grammarScore: 0,
+                relevanceScore: 0,
+                totalTokens: 0,
+                spellingErrors: 0,
+            },
+        }));
+
+        const interview = await Interview.findById(interviewId);
+        if (!interview) {
+            return res.status(404).json({ error: 'Interview not found' });
+        }
+
+        interview.questions = formattedQuestions;
+        interview.jobRole = jobRole;
+        await interview.save();
 
         res.status(200).json({ questions });
     } catch (err) {

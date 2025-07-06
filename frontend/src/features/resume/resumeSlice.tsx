@@ -37,31 +37,24 @@ export const getAllResumes = createAsyncThunk<
 
 const initialState: ResumeState = {
     resumes: [],
-    loading: false,
+    isUploadingResume: false,
+    isLoadingResumes: false,
     errorMessage: null,
     file: null,
-    resumeText: '',
     uploadSuccess: false,
     showPreview: false,
     showJobRoleModal: false,
-    resumeId: '',
 }
 
 const resumeSlice = createSlice({
     name: "resume",
     initialState,
     reducers: {
-        setResumeId: (state, action) => {
-            state.resumeId = action.payload;
-        },
         setFile: (state, action: PayloadAction<File | null>) => {
             state.file = action.payload;
         },
         removeFile: (state) => {
             state.file = null;
-        },
-        setResumeText: (state, action: PayloadAction<string>) => {
-            state.resumeText = action.payload;
         },
         setUploadSuccess: (state, action: PayloadAction<boolean>) => {
             state.uploadSuccess = action.payload;
@@ -84,37 +77,37 @@ const resumeSlice = createSlice({
         builder
             //upload resume code
             .addCase(uploadResume.pending, (state) => {
-                state.loading = true;
+                state.isUploadingResume = true;
                 state.errorMessage = null;
             })
             .addCase(uploadResume.fulfilled, (state, action) => {
-                const { resume, resumeId, extractedText } = action.payload;
+                const { resume,resumeId,interviewId } = action.payload;
 
-                state.loading = false;
+                state.isUploadingResume = false;
                 state.uploadSuccess = true;
-                state.resumeText = extractedText;
-                state.resumeId = resumeId;
-                state.resumes.push(resume); // ✅ push into array
+                state.resumes.push(resume);
+                localStorage.setItem("resumeId", resumeId);
+                localStorage.setItem("interviewId", interviewId);
             })
             .addCase(uploadResume.rejected, (state, action) => {
-                state.loading = false;
+                state.isUploadingResume = false;
                 state.errorMessage = action.payload ?? "Something unexpected happened";
             })
             //get uploaded resumes
             .addCase(getAllResumes.pending, (state) => {
-                state.loading = true;
+                state.isLoadingResumes = true;
                 state.errorMessage = null;
             })
             .addCase(getAllResumes.fulfilled, (state, action) => {
-                state.loading = false;
+                state.isLoadingResumes = false;
                 state.resumes = action.payload; // ✅ Replace existing resumes with fetched ones
             })
             .addCase(getAllResumes.rejected, (state, action) => {
-                state.loading = false;
+                state.isLoadingResumes = false;
                 state.errorMessage = action.payload ?? "Failed to fetch resumes";
             });
     }
 })
 
-export const { setFile, removeFile, setResumeText, setUploadSuccess, setShowPreview, setShowJobRoleModal, setResumeId, resetResumeState } = resumeSlice.actions;
+export const { setFile, removeFile, setUploadSuccess, setShowPreview, setShowJobRoleModal, resetResumeState } = resumeSlice.actions;
 export default resumeSlice.reducer;

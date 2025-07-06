@@ -5,10 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ResumePreviewModal } from "./ResumePreviewModal";
+import { useAppSelector } from "@/store";
 const MAIN_LINK = process.env.NEXT_PUBLIC_MAIN_API_URL;
 
 export function ResumeCard({ resume }: { resume: Resume }) {
     const router = useRouter();
+    const { isLoadingResumes } = useAppSelector((state) => state.resume)
 
     const [previewResume, setPreviewResume] = useState<Resume | null>(null);
 
@@ -35,7 +37,12 @@ export function ResumeCard({ resume }: { resume: Resume }) {
                         Download
                     </Link>
                 </Button2>
-                <Button1 onClick={() => router.push(`/interview/${resume._id}`)}>Go to Interview</Button1>
+                <Button1
+                    onClick={() => router.push(`/interview?resumeId=${resume._id}`)}
+                    disabled={isLoadingResumes}
+                >
+                    {isLoadingResumes ? "Loading..." : "Go to Interview"}
+                </Button1>
             </div>
             <ResumePreviewModal resume={previewResume} />
         </CardLayout>

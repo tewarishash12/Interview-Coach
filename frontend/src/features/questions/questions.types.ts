@@ -12,16 +12,13 @@ export interface InterviewQuestions {
     id: number;
     question: string;
     expectedKeywords: string[];
-    answer: string;
-    feedback: Feedback;
-    score: number;
 }
 
 export interface InitialQuestionState {
     jobRole: string;
-    resumeId:string;
     questions: InterviewQuestions[];
-    isLoading: boolean;
+    isLoadingQuestions: boolean;
+    isLoadingFeedback:boolean;
     errorMessage: string | null;
     current: number;
     showConfirm: boolean;
@@ -32,6 +29,7 @@ export interface FeedbackRequest {
     question: string;
     transcript: string;
     expectedKeywords: string[];
+    interviewId:string;
 }
 
 export interface InterviewRequest {

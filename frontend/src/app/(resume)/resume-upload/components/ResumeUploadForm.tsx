@@ -5,10 +5,10 @@ import { Button1, Button2 } from "@/global-components/Button";
 import UploadStatus from "./UploadStatus";
 import ResumePreviewModal from "./ResumePreviewModal";
 import { useAppDispatch, useAppSelector } from "@/store/index";
-import { setFile, removeFile, setResumeText, setUploadSuccess, setShowPreview, setShowJobRoleModal, setResumeId } from "@/features/resume/resumeSlice"
+import { setFile, removeFile, setUploadSuccess, setShowPreview, setShowJobRoleModal } from "@/features/resume/resumeSlice"
 import { uploadResume } from "@/features/resume/resumeSlice";
 import JobRoleModal from "./JobRoleModal";
-import { generateQuestions, setJobRole, setResumeMongoId } from "@/features/questions/questionSlice";
+import { generateQuestions } from "@/features/questions/questionSlice";
 import { useRouter } from "next/navigation";
 
 const ACCEPTED_TYPES = [
@@ -19,7 +19,7 @@ const ACCEPTED_TYPES = [
 export default function ResumeUploadForm() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const { errorMessage, loading, file, uploadSuccess, showPreview, showJobRoleModal, resumeText } = useAppSelector((state) => state.resume);
+    const { errorMessage, isUploadingResume, file, uploadSuccess, showPreview, showJobRoleModal } = useAppSelector((state) => state.resume);
 
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -45,18 +45,14 @@ export default function ResumeUploadForm() {
         const result = await dispatch(uploadResume({ file }));
         if (uploadResume.fulfilled.match(result)) {
             dispatch(setUploadSuccess(true));
-            dispatch(setResumeText(result.payload.extractedText));
-            dispatch(setResumeId(result.payload.resumeId));
-            dispatch(setResumeMongoId(result.payload.resumeId))
             dispatch(setShowJobRoleModal(true));
             setTimeout(() => setUploadSuccess(false), 3000);
         }
     }
 
     async function handleJobRoleSubmit(role: string) {
-        const res = await dispatch(generateQuestions({ resumeText, jobRole: role }))
+        const res = await dispatch(generateQuestions({ jobRole: role, interviewId:localStorage.getItem("interviewId") ?? "", resumeId:localStorage.getItem("resumeId") ?? "" }))
         if (generateQuestions.fulfilled.match(res)) {
-            dispatch(setJobRole(role));
             dispatch(setShowJobRoleModal(false));
             router.push("/generate-questions");
         }
@@ -93,8 +89,8 @@ export default function ResumeUploadForm() {
                             <Button2 onClick={clearFile}>Remove</Button2>
                             <Button2 onClick={() => dispatch(setShowPreview(true))}>Preview</Button2>
                         </div>
-                        <Button1 onClick={handleUpload} disabled={loading}>
-                            Submit
+                        <Button1 onClick={handleUpload} disabled={isUploadingResume}>
+                            {isUploadingResume ? "Uploading Resume..." : "Submit"}
                         </Button1>
                     </div>
                 )}
@@ -102,7 +98,7 @@ export default function ResumeUploadForm() {
 
             <div className="mt-4">
                 <UploadStatus
-                    loading={loading}
+                    isUploadingResume={isUploadingResume}
                     errorMessage={errorMessage}
                     success={uploadSuccess}
                     onRetry={handleUpload}

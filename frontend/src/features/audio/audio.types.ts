@@ -5,6 +5,6 @@ export interface TranscribeAudioRequest {
 export interface AudioState {
     transcribe: string;
     isRecording: boolean;
-    isLoading: boolean;
+    isLoadingAudio: boolean;
     errorMessage: string | null;
 }

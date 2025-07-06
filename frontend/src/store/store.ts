@@ -4,6 +4,7 @@ import resumeReducer from "@/features/resume/resumeSlice"
 import questionReducer from "@/features/questions/questionSlice"
 import audioReducer from '@/features/audio/audioSlice';
 import interviewReducer from '@/features/interview/interviewSlice';
+import contactReducer from '@/features/contact/contactSlice'
 
 const rootReducer = combineReducers({
     auth: authReducer,
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
     question:questionReducer,
     audio: audioReducer,
     interview: interviewReducer,
+    contact:contactReducer
 });
 
 export default rootReducer;

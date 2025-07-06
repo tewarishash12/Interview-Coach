@@ -1,15 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosMainInstance } from "@/utils/tokenGeneration";
-import { Feedback, FeedbackRequest, InitialQuestionState, InterviewQuestions, InterviewRequest, InterviewResponse } from "./questions.types";
+import { Feedback, FeedbackRequest, InitialQuestionState, InterviewQuestions } from "./questions.types";
 import { rejectWithError } from "@/utils/errorHandling";
 
 export const generateQuestions = createAsyncThunk<
     InterviewQuestions[],
-    { jobRole: string, resumeText: string },
+    { jobRole: string, resumeId: string, interviewId:string },
     { rejectValue: string }
->('interview/generate-questions', async ({ jobRole, resumeText }, thunkAPI) => {
+>('interview/generate-questions', async ({ jobRole, resumeId, interviewId }, thunkAPI) => {
     try {
-        const res = await axiosMainInstance.post('/ai/generate-questions', { jobRole, resumeText });
+        const res = await axiosMainInstance.post('/ai/generate-questions', { jobRole, resumeId, interviewId });
         const formattedQuestions: InterviewQuestions[] = res.data.questions.map(
             (q: { question: string; expectedKeywords: string[] }, index: number) => ({
                 id: index + 1,
@@ -37,24 +37,11 @@ export const answerFeedback = createAsyncThunk<
     }
 });
 
-export const saveInterview = createAsyncThunk<
-    InterviewResponse,
-    InterviewRequest,
-    { rejectValue: string }
->('save/interview', async (data, thunkAPI) => {
-    try {
-        const res = await axiosMainInstance.post('interview/save', data);
-        return res.data;
-    } catch (error) {
-        return rejectWithError(error, thunkAPI, "Resume Upload Failed");
-    }
-})
-
 const initialState: InitialQuestionState = {
     jobRole: '',
-    resumeId: '',
     questions: [],
-    isLoading: false,
+    isLoadingQuestions: false,
+    isLoadingFeedback:false,
     errorMessage: null,
     current: 0,
     showConfirm: false,
@@ -71,97 +58,42 @@ export const questionSlice = createSlice({
         },
         setShowConfirm: (state, action) => {
             state.showConfirm = action.payload;
-        },
-        setResumeMongoId: (state, action) => {
-            state.resumeId = action.payload;
-        },
-        setJobRole: (state, action) => {
-            state.jobRole = action.payload
-        },
-        saveAnswer: (state, action) => {
-            const question = state.questions[state.current]
-            question.answer = action.payload;
-        },
-        setSkippedQuestions: (state) => {
-            const question = state.questions[state.current]
-            question.answer = "unattempted";
-            question.feedback = {
-                toneScore: 0,
-                tone: "unattempted",
-                keywordDensity: 0,
-                grammarScore: 0,
-                relevanceScore: 0,
-                totalTokens: 0,
-                spellingErrors: 0,
-            }
-            question.score = 0;
-        },
-        calculateScore: (state) => {
-            const currentQuestion = state.questions[state.current];
-            const feedback = currentQuestion.feedback;
-
-            const scores = [
-                feedback.grammarScore,
-                feedback.relevanceScore,
-                feedback.keywordDensity
-            ];
-
-            const validScores = scores.filter(score => typeof score === 'number' && !isNaN(score));
-
-            const average =
-                validScores.length > 0
-                    ? parseFloat((validScores.reduce((acc, val) => acc + val, 0) / validScores.length).toFixed(2))
-                    : 0;
-
-            currentQuestion.score = average;
         }
     },
     extraReducers: (builder) => {
         builder
             // for generating questions
             .addCase(generateQuestions.pending, (state) => {
-                state.isLoading = true;
+                state.isLoadingQuestions = true;
                 state.errorMessage = null;
             })
             .addCase(generateQuestions.fulfilled, (state, action) => {
-                state.isLoading = false;
+                state.isLoadingQuestions = false;
                 state.errorMessage = null;
                 state.questions = action.payload;
             })
             .addCase(generateQuestions.rejected, (state, action) => {
-                state.isLoading = false;
+                state.isLoadingQuestions = false;
                 state.errorMessage = action.payload ?? "Something unexpected happened";
             })
             //feedback buiders
             .addCase(answerFeedback.pending, (state) => {
-                state.isLoading = true;
+                state.isLoadingFeedback = true;
                 state.errorMessage = null;
                 state.showFeedback = false;
             })
-            .addCase(answerFeedback.fulfilled, (state, action) => {
-                state.isLoading = false;
+            .addCase(answerFeedback.fulfilled, (state) => {
+                state.isLoadingFeedback = false;
                 state.errorMessage = null;
                 state.showFeedback = false;
-                const question = state.questions[state.current]
-                const res = action.payload
-                question.feedback = {
-                    tone: res.tone,
-                    toneScore: res.toneScore,
-                    keywordDensity: res.keywordDensity,
-                    grammarScore: res.grammarScore,
-                    relevanceScore: res.relevanceScore,
-                    totalTokens: res.totalTokens,
-                    spellingErrors: res.spellingErrors,
-                }
-                question.score = 0;
             })
             .addCase(answerFeedback.rejected, (state, action) => {
                 state.showFeedback = false;
-                state.isLoading = false
+                state.isLoadingFeedback = false
                 state.errorMessage = action.payload ?? "Something unexpected happened";
             })
     }
 })
 
-export const { goToNextQuestion, setShowConfirm, saveAnswer, setSkippedQuestions, calculateScore, setResumeMongoId, setJobRole } = questionSlice.actions;
+export const { goToNextQuestion, setShowConfirm } = questionSlice.actions;
 export default questionSlice.reducer;

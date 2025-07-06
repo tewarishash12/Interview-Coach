@@ -3,9 +3,11 @@ import { CardLayout } from "@/global-components/Card";
 import { Button1 } from "@/global-components/Button";
 import { useRouter } from "next/navigation";
 import { InterviewResponse } from "@/features/interview/interview.types";
+import { useAppSelector } from "@/store";
 
 export function InterviewCard({ interview }: { interview: InterviewResponse }) {
     const router = useRouter();
+    const {isLoadingInterview} = useAppSelector((state)=>state.interview)
     const avgScore = interview.questions && interview.questions.length
         ? (interview.questions.reduce((acc, q) => acc + (q.score ?? 0), 0) / interview.questions.length).toFixed(1)
         : "N/A";
@@ -29,8 +31,11 @@ export function InterviewCard({ interview }: { interview: InterviewResponse }) {
                     {interview.status}
                 </span>
             </div>
-            <Button1 onClick={() => router.push(`/interview/${interview._id}`)}>
-                View Details
+            <Button1 
+            disabled={isLoadingInterview}
+            onClick={() => router.push(`/interview/${interview._id}`)}
+            >
+                {isLoadingInterview? "Loading Interview..." : "View Details"}
             </Button1>
         </CardLayout>
     );
