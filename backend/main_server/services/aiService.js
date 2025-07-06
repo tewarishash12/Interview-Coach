@@ -28,54 +28,27 @@ exports.generateAIContent = async (prompt) => {
     }
 };
 
-function saveBase64Audio(base64Str) {
-    const matches = base64Str.match(/^data:audio\/\w+;base64,(.+)$/);
-    const base64 = matches ? matches[1] : base64Str; // Strip prefix if present
-    const buffer = Buffer.from(base64, 'base64');
-    console.log("Audio file size:", buffer.length); // should not be 0
-
-    const outputPath = path.join(__dirname, '../temp_audio.wav');  // ✅ TEMP FILE PATH
-    fs.writeFileSync(outputPath, buffer);
-    return outputPath;
-}
-
 // ✅ MODIFIED: Accept base64 input instead of path
-exports.transcribeAudio = (base64Audio) => {
-    return new Promise((resolve, reject) => {
-        const scriptPath = path.join(__dirname, '../python/transcribe.py');
+exports.transcribeAudio = async (base64Audio) => {
+    try {
+        // ✅ Strip base64 prefix if present
+        const matches = base64Audio.match(/^data:audio\/\w+;base64,(.+)$/);
+        const audioData = matches ? matches[1] : base64Audio;
 
-        // ✅ Save base64 to file and use real file path
-        const audioPath = saveBase64Audio(base64Audio);
+        // ✅ Get Python API URL from env
+        const apiUrl = `${process.env.WHISPER_API_URL}/transcribe`;
 
-        const python = spawn('python', [scriptPath, audioPath]);
-
-        let output = '';
-        let error = '';
-
-        python.stdout.on('data', (data) => {
-            output += data.toString();
+        const response = await axios.post(apiUrl, {
+            audio_base64: audioData,
         });
 
-        python.stderr.on('data', (data) => {
-            const stderrStr = data.toString();
-            console.warn('[Python stderr]:', stderrStr); // ✅ Log the warning but don't treat it as fatal
-        });
-
-        python.on('close', (code) => {
-            fs.unlinkSync(audioPath); // cleanup
-
-            try {
-                console.log("Raw Python output:", output);
-                const parsed = JSON.parse(output);
-                if (parsed.error) {
-                    reject(new Error(parsed.error)); // ❌ True error in output
-                } else {
-                    resolve(parsed.text);            // ✅ Success
-                }
-            } catch (e) {
-                reject(new Error('Invalid response from Python script:\n' + output));
-            }
-        });
-
-    });
+        if (response.data && response.data.text) {
+            return response.data.text;
+        } else {
+            throw new Error('Invalid response from Whisper API');
+        }
+    } catch (error) {
+        console.error('Whisper API error:', error.message);
+        throw error;
+    }
 };
