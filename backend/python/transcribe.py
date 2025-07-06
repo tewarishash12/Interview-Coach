@@ -4,7 +4,7 @@ import whisper
 import json
 
 def transcribe(audio_path):
-    model = whisper.load_model("base")  # You can use tiny, base, small, medium, large
+    model = whisper.load_model("tiny")  # You can use tiny, base, small, medium, large
     result = model.transcribe(audio_path)
     return result["text"]
 
