@@ -21,7 +21,7 @@ export default function Navbar() {
         <nav className="bg-white shadow flex items-center justify-between px-8 py-4">
             <div className="flex items-center space-x-6">
                 <Link href="/" className="text-2xl font-bold text-purple-600">
-                    AI Interview Coach
+                    Intervue Coach
                 </Link>
                 <div className="hidden md:flex space-x-4 text-gray-700 font-medium">
                     <Link href="/">Home</Link>
@@ -34,12 +34,7 @@ export default function Navbar() {
                             </>
                         )
                         :
-                        (
-                            <>
-                                <Link href="/dashboard">Dashboard</Link>
-                                <Link href="/history">Practice History</Link>
-                            </>
-                        )
+                        <></>
                     }
                 </div>
             </div>
