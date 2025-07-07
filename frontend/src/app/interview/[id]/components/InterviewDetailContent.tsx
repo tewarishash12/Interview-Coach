@@ -28,14 +28,14 @@ export default function InterviewDetailContent() {
         if (id) fetchInterview(id as string);
     }, [dispatch, id])
 
-    if(!interview || !interview?.questions)
+    if(!interview)
         return <EmptyState />
 
     return (
         <div className="space-y-8">
             <InterviewSummaryHeader interview={interview} />
-            <InterviewScoreBreakdown questions={interview?.questions} />
-            <QuestionFeedbackList questions={interview?.questions} />
+            <InterviewScoreBreakdown questions={interview?.questions??[]} />
+            <QuestionFeedbackList questions={interview?.questions??[]} />
         </div>
     );
 }
