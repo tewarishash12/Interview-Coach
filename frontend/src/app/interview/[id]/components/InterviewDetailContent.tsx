@@ -34,8 +34,8 @@ export default function InterviewDetailContent() {
     return (
         <div className="space-y-8">
             <InterviewSummaryHeader interview={interview} />
-            <InterviewScoreBreakdown questions={interview?.questions} />
-            <QuestionFeedbackList questions={interview?.questions} />
+            <InterviewScoreBreakdown questions={interview?.questions??[]} />
+            <QuestionFeedbackList questions={interview?.questions??[]} />
         </div>
     );
 }
