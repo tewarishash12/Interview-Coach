@@ -1,8 +1,8 @@
-import { InterviewQuestions } from "@/features/questions/questions.types";
+import { InterviewQuestion } from "@/features/interview/interview.types";
 import { InterviewScoreBarChart } from "./InterviewScoreBarChart";
 import { InterviewScoreCards } from "./InterviewScoreCards";
 
-export default function InterviewDashboard({ questions }:{questions:InterviewQuestions[]}) {
+export default function InterviewDashboard({ questions }:{questions:InterviewQuestion[]}) {
     return (
         <div>
             <InterviewScoreCards questions={questions} />
