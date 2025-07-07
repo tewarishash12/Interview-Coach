@@ -1,8 +1,8 @@
 const axios = require('axios');
-const { spawn } = require('child_process');
-require('dotenv').config();
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
+require('dotenv').config();
 
 
 exports.generateAIContent = async (prompt) => {
@@ -30,25 +30,42 @@ exports.generateAIContent = async (prompt) => {
 
 // ✅ MODIFIED: Accept base64 input instead of path
 exports.transcribeAudio = async (base64Audio) => {
+    const matches = base64Audio.match(/^data:audio\/(\w+);base64,(.+)$/);
+    if (!matches) throw new Error('Invalid base64 audio format');
+
+    const mimeExt = matches[1]; // like webm, wav
+    const audioData = matches[2];
+    const buffer = Buffer.from(audioData, 'base64');
+
+    const tempFileName = `${uuidv4()}.${mimeExt}`;
+    const tempFilePath = path.join(process.env.UPLOAD_DIR, tempFileName);
+
     try {
-        // ✅ Strip base64 prefix if present
-        const matches = base64Audio.match(/^data:audio\/\w+;base64,(.+)$/);
-        const audioData = matches ? matches[1] : base64Audio;
+        // Save audio temporarily
+        fs.writeFileSync(tempFilePath, buffer);
 
-        // ✅ Get Python API URL from env
-        const apiUrl = `${process.env.WHISPER_API_URL}/transcribe`;
+        const audioStream = fs.createReadStream(tempFilePath);
+        const response = await axios.post(
+            'https://api.deepgram.com/v1/listen',
+            audioStream,
+            {
+                headers: {
+                    'Authorization': `Token ${process.env.DEEPGRAM_API_KEY}`,
+                    'Content-Type': `audio/${mimeExt}`,
+                },
+            }
+        );
 
-        const response = await axios.post(apiUrl, {
-            audio_base64: audioData,
-        });
+        const result = response.data;
+        const transcript = result.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
 
-        if (response.data && response.data.text) {
-            return response.data.text;
-        } else {
-            throw new Error('Invalid response from Whisper API');
-        }
+        console.log('[Deepgram] Transcription:', transcript);
+        return transcript;
     } catch (error) {
-        console.error('Whisper API error:', error.message);
-        throw error;
+        console.error('[Deepgram] Error:', error.response?.data || error.message);
+        throw new Error('Deepgram transcription failed');
+    } finally {
+        // Clean up temp file
+        if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
     }
 };
