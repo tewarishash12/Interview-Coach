@@ -15,6 +15,7 @@ export default function SingleQuestionCard() {
 
     const { questions, showConfirm, current } = useAppSelector((state) => state.question);
     const { isLoadingAudio, transcribe } = useAppSelector((state) => state.audio);
+    const { isLoadingFeedback } = useAppSelector((state)=>state.question);
     const question = questions[current];
 
     function handleSkip() {
@@ -80,7 +81,7 @@ export default function SingleQuestionCard() {
                 />
             )}
 
-            {isLoadingAudio && <FeedbackLoadingOverlay />}
+            {isLoadingFeedback && <FeedbackLoadingOverlay />}
         </CardLayout>
     );
 }

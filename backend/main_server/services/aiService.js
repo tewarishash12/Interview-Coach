@@ -1,8 +1,8 @@
 const axios = require('axios');
-const { spawn } = require('child_process');
-require('dotenv').config();
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
+require('dotenv').config();
 
 
 exports.generateAIContent = async (prompt) => {
@@ -28,54 +28,44 @@ exports.generateAIContent = async (prompt) => {
     }
 };
 
-function saveBase64Audio(base64Str) {
-    const matches = base64Str.match(/^data:audio\/\w+;base64,(.+)$/);
-    const base64 = matches ? matches[1] : base64Str; // Strip prefix if present
-    const buffer = Buffer.from(base64, 'base64');
-    console.log("Audio file size:", buffer.length); // should not be 0
-
-    const outputPath = path.join(__dirname, '../temp_audio.wav');  // ✅ TEMP FILE PATH
-    fs.writeFileSync(outputPath, buffer);
-    return outputPath;
-}
-
 // ✅ MODIFIED: Accept base64 input instead of path
-exports.transcribeAudio = (base64Audio) => {
-    return new Promise((resolve, reject) => {
-        const scriptPath = path.join(__dirname, '../python/transcribe.py');
+exports.transcribeAudio = async (base64Audio) => {
+    const matches = base64Audio.match(/^data:audio\/(\w+);base64,(.+)$/);
+    if (!matches) throw new Error('Invalid base64 audio format');
 
-        // ✅ Save base64 to file and use real file path
-        const audioPath = saveBase64Audio(base64Audio);
+    const mimeExt = matches[1]; // like webm, wav
+    const audioData = matches[2];
+    const buffer = Buffer.from(audioData, 'base64');
 
-        const python = spawn('python', [scriptPath, audioPath]);
+    const tempFileName = `${uuidv4()}.${mimeExt}`;
+    const tempFilePath = path.join(process.env.UPLOAD_DIR, tempFileName);
 
-        let output = '';
-        let error = '';
+    try {
+        // Save audio temporarily
+        fs.writeFileSync(tempFilePath, buffer);
 
-        python.stdout.on('data', (data) => {
-            output += data.toString();
-        });
-
-        python.stderr.on('data', (data) => {
-            const stderrStr = data.toString();
-            console.warn('[Python stderr]:', stderrStr); // ✅ Log the warning but don't treat it as fatal
-        });
-
-        python.on('close', (code) => {
-            fs.unlinkSync(audioPath); // cleanup
-
-            try {
-                console.log("Raw Python output:", output);
-                const parsed = JSON.parse(output);
-                if (parsed.error) {
-                    reject(new Error(parsed.error)); // ❌ True error in output
-                } else {
-                    resolve(parsed.text);            // ✅ Success
-                }
-            } catch (e) {
-                reject(new Error('Invalid response from Python script:\n' + output));
+        const audioStream = fs.createReadStream(tempFilePath);
+        const response = await axios.post(
+            'https://api.deepgram.com/v1/listen',
+            audioStream,
+            {
+                headers: {
+                    'Authorization': `Token ${process.env.DEEPGRAM_API_KEY}`,
+                    'Content-Type': `audio/${mimeExt}`,
+                },
             }
-        });
+        );
 
-    });
+        const result = response.data;
+        const transcript = result.results?.channels?.[0]?.alternatives?.[0]?.transcript || '';
+
+        console.log('[Deepgram] Transcription:', transcript);
+        return transcript;
+    } catch (error) {
+        console.error('[Deepgram] Error:', error.response?.data || error.message);
+        throw new Error('Deepgram transcription failed');
+    } finally {
+        // Clean up temp file
+        if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
+    }
 };
