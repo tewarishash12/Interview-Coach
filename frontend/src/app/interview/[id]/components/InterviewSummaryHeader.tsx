@@ -1,7 +1,7 @@
 import { InterviewResponse } from "@/features/interview/interview.types";
 
 export default function InterviewSummaryHeader({ interview }:{interview:InterviewResponse}) {
-    const avgScore = interview.questions.length
+    const avgScore = interview?.questions?.length
         ? (interview.questions.reduce((acc, q) => acc + (q.score ?? 0), 0) / interview.questions.length).toFixed(1)
         : "N/A";
     const statusColor = interview.status === "completed"
