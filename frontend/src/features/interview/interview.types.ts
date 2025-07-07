@@ -21,7 +21,7 @@ export interface InterviewResponse {
     _id: string;
     user: string;
     resume: string;
-    questions: InterviewQuestion[];
+    questions?: InterviewQuestion[];
     jobRole: string;
     status: "incomplete" | "completed";
     conductedAt: string;
