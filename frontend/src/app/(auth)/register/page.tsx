@@ -27,7 +27,7 @@ export default function RegisterPage() {
 
         setTimeout(() => {
             dispatch(clearMessages());
-        }, 2000)
+        }, 5000)
     }
 
     return (

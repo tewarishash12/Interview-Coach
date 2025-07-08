@@ -23,7 +23,7 @@ export default function VerifyEmailPage() {
                 setTimeout(() => {
                     dispatch(clearMessages());
                     router.push("/login")
-                }, 1500);
+                }, 2000);
             } catch (error) {
                 console.error("❌ Verification failed:", error);
             }

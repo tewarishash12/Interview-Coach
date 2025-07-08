@@ -118,7 +118,7 @@ const authSlice = createSlice({
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.isRegisteringIn = false;
-                state.errorMessage = action.payload ?? "Somthing unexpected happened";
+                state.errorMessage = action.payload ?? "Something unexpected happened";
             })
 
             //handle verify-token state
@@ -132,6 +132,7 @@ const authSlice = createSlice({
                 state.successMessage = action.payload.message ?? "Verification successful.";
             })
             .addCase(verifyEmail.rejected, (state, action) => {
+                console.log(action.payload);
                 state.isVerifyingToken = false;
                 state.errorMessage = action.payload ?? "Somthing unexpected happened";
             })
