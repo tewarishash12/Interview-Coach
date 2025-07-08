@@ -33,7 +33,7 @@ exports.register = async (req, res) => {
         const user = new User({ name, email, password: hashedPassword, verificationToken });
         await user.save();
 
-        res.status(201).json({ message: "New user created successfully" });
+        res.status(201).json({ message: "Chevlk mail for verificatin link" });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -63,7 +63,7 @@ exports.login = async (req, res) => {
         const userInfo = await User.findOne({ email });
 
         if (!userInfo)
-            return res.status(404).json({ message: "User with requested username not found" });
+            return res.status(404).json({ message: "User with requested email not found" });
 
         if (!userInfo.isVerified)
             return res.status(403).json({ message: "Please verify your email first" });
