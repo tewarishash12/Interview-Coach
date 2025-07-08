@@ -24,10 +24,13 @@ export default function LoginPage() {
         e.preventDefault();
 
         const result = await dispatch(loginUser({ email, password }))
-        dispatch(clearMessages());
         if (loginUser.fulfilled.match(result)) {
+            dispatch(clearMessages());
             router.push("/")
         }
+        setTimeout(()=>{
+            clearMessages();
+        }, 2000);
     };
 
     return (
