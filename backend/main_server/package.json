@@ -7,8 +7,8 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "node app.js",
+    "main": "nodemon app.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
