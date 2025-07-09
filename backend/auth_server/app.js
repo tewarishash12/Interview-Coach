@@ -20,6 +20,13 @@ app.use(morgan("dev"));
 
 app.use("/auth", authRoutes);
 
+app.get("/", (req,res)=>{
+    try {
+        return res.status(200).json({message: "Welcome to AI Interview Coach Main Server"})
+    } catch(err) {
+        res.status(500).json({message:err.message})
+    }
+})
 
 app.listen(PORT, () => {
     console.log(`Auth Server running on port ${PORT} http://localhost:${PORT}/`);
