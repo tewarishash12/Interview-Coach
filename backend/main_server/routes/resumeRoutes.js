@@ -1,12 +1,12 @@
 const router = require('express').Router();
-const { uploadResume, getUserResumes } = require('../controllers/resumeController');
+const { uploadResume, getUserResumes, useExistingResume } = require('../controllers/resumeController');
 const { authMiddleware } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/fileUpload');
 
-// POST /api/resumes/upload
 router.post('/upload', authMiddleware, upload.single('resume'), uploadResume);
 
-// GET /api/resumes/user
+router.post('/use-existing', authMiddleware, useExistingResume)
+
 router.get('/user', authMiddleware, getUserResumes);
 
 module.exports = router;

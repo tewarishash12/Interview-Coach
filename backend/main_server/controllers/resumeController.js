@@ -12,7 +12,7 @@ exports.uploadResume = async (req, res) => {
 
         const relativePath = req.file.path.replace(/\\/g, '/').split('uploads')[1];
         const publicPath = `/uploads${relativePath}`;
-        
+
         let existingResume = await Resume.findOne({
             user: req.user._id,
             extractedText: extractedText
@@ -33,14 +33,14 @@ exports.uploadResume = async (req, res) => {
         }
 
         await resume.save();
-        
+
         const interview = new Interview({
             user: req.user._id,
             resume: resume._id,
         });
 
         await interview.save();
-        
+
         res.status(201).json({
             message: 'Resume uploaded and parsed',
             resumeId: resume._id,
@@ -57,6 +57,36 @@ exports.getUserResumes = async (req, res) => {
     try {
         const resumes = await Resume.find({ user: req.user._id }).sort({ uploadedAt: -1 });
         res.json(resumes);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+exports.useExistingResume = async (req, res) => {
+    try {
+        const { resumeId } = req.body;
+
+        if (!resumeId) {
+            return res.status(400).json({ message: 'Resume ID is required' });
+        }
+
+        const resume = await Resume.findOne({ _id: resumeId, user: req.user._id });
+        if (!resume) {
+            return res.status(404).json({ message: 'Resume not found or unauthorized access' });
+        }
+
+        const interview = new Interview({
+            user: req.user._id,
+            resume: resume._id,
+        });
+
+        await interview.save();
+
+        res.status(201).json({
+            message: 'Existing resume used successfully',
+            resumeId: resume._id,
+            interviewId: interview._id,
+        });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
