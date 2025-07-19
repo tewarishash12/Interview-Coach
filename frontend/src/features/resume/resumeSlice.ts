@@ -41,6 +41,7 @@ const initialState: ResumeState = {
     isLoadingResumes: false,
     errorMessage: null,
     file: null,
+    selectedResumeId: null,
     uploadSuccess: false,
     showPreview: false,
     showJobRoleModal: false,
@@ -72,6 +73,9 @@ const resumeSlice = createSlice({
                 resumes: preservedResumes,
             };
         },
+        setSelectedResumeId: (state, action: PayloadAction<string | null>) => {
+            state.selectedResumeId = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -81,11 +85,16 @@ const resumeSlice = createSlice({
                 state.errorMessage = null;
             })
             .addCase(uploadResume.fulfilled, (state, action) => {
-                const { resume,resumeId,interviewId } = action.payload;
+                const { resume, resumeId, interviewId } = action.payload;
 
                 state.isUploadingResume = false;
                 state.uploadSuccess = true;
-                state.resumes.push(resume);
+
+                const alreadyExists = state.resumes.find(r => r._id === resume._id);
+                if (!alreadyExists) {
+                    state.resumes.push(resume);
+                }
+
                 localStorage.setItem("resumeId", resumeId);
                 localStorage.setItem("interviewId", interviewId);
             })
@@ -109,5 +118,5 @@ const resumeSlice = createSlice({
     }
 })
 
-export const { setFile, removeFile, setUploadSuccess, setShowPreview, setShowJobRoleModal, resetResumeState } = resumeSlice.actions;
+export const { setFile, removeFile, setUploadSuccess, setShowPreview, setShowJobRoleModal, resetResumeState, setSelectedResumeId } = resumeSlice.actions;
 export default resumeSlice.reducer;

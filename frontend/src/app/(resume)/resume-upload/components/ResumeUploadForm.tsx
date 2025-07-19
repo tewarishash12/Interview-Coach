@@ -5,7 +5,7 @@ import { Button1, Button2 } from "@/global-components/Button";
 import UploadStatus from "./UploadStatus";
 import ResumePreviewModal from "./ResumePreviewModal";
 import { useAppDispatch, useAppSelector } from "@/store/index";
-import { setFile, removeFile, setUploadSuccess, setShowPreview, setShowJobRoleModal } from "@/features/resume/resumeSlice"
+import { setFile, removeFile, setUploadSuccess, setShowPreview, setShowJobRoleModal, setSelectedResumeId } from "@/features/resume/resumeSlice"
 import { uploadResume } from "@/features/resume/resumeSlice";
 import JobRoleModal from "./JobRoleModal";
 import { generateQuestions } from "@/features/questions/questionSlice";
@@ -19,14 +19,16 @@ const ACCEPTED_TYPES = [
 export default function ResumeUploadForm() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const { errorMessage, isUploadingResume, file, uploadSuccess, showPreview, showJobRoleModal } = useAppSelector((state) => state.resume);
+    const { errorMessage, resumes, isUploadingResume, selectedResumeId, file, uploadSuccess, showPreview, showJobRoleModal } = useAppSelector((state) => state.resume);
+
+    const selectedResume = resumes.find(resume => resume._id === selectedResumeId);
 
     const inputRef = useRef<HTMLInputElement>(null);
 
     function handleDrop(e: React.DragEvent) {
         e.preventDefault();
         const resume = e.dataTransfer.files[0];
-        if (resume && ACCEPTED_TYPES.includes(resume.type)) 
+        if (resume && ACCEPTED_TYPES.includes(resume.type))
             dispatch(setFile(resume));
     }
 
@@ -51,7 +53,7 @@ export default function ResumeUploadForm() {
     }
 
     async function handleJobRoleSubmit(role: string) {
-        const res = await dispatch(generateQuestions({ jobRole: role, interviewId:localStorage.getItem("interviewId") ?? "", resumeId:localStorage.getItem("resumeId") ?? "" }))
+        const res = await dispatch(generateQuestions({ jobRole: role, interviewId: localStorage.getItem("interviewId") ?? "", resumeId: localStorage.getItem("resumeId") ?? "" }))
         if (generateQuestions.fulfilled.match(res)) {
             dispatch(setShowJobRoleModal(false));
             router.push("/generate-questions");
@@ -69,7 +71,17 @@ export default function ResumeUploadForm() {
                 onClick={() => inputRef.current?.click()}
                 style={{ cursor: "pointer" }}
             >
-                {!file ? (
+                {!file && selectedResume ? (
+                    <div className="flex flex-col items-center w-full">
+                        <div className="flex items-center space-x-2 mb-5">
+                            <span className="text-purple-600 font-semibold">{selectedResume.fileName}</span>
+                            <Button2 onClick={() => dispatch(setSelectedResumeId(null))}>Remove</Button2>
+                        </div>
+                        <Button1 onClick={handleUpload} disabled={isUploadingResume}>
+                            {isUploadingResume ? "Uploading Resume..." : "Submit"}
+                        </Button1>
+                    </div>
+                ) : !file ? (
                     <>
                         <div className="text-3xl mb-2 text-purple-400">📄</div>
                         <div className="text-gray-700 font-semibold mb-1">Drag & drop your resume here</div>

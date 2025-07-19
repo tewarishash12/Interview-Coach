@@ -22,6 +22,7 @@ export interface ResumeState {
     isUploadingResume:boolean;
     isLoadingResumes:boolean;
     errorMessage:string | null;
+    selectedResumeId: string | null;
     file: File | null;
     uploadSuccess: boolean;
     showPreview: boolean;
