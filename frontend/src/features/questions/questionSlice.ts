@@ -58,6 +58,9 @@ export const questionSlice = createSlice({
         },
         setShowConfirm: (state, action) => {
             state.showConfirm = action.payload;
+        },
+        resetCurrentState: (state) =>{
+            state.current = 0;
         }
     },
     extraReducers: (builder) => {
@@ -95,5 +98,5 @@ export const questionSlice = createSlice({
     }
 })
 
-export const { goToNextQuestion, setShowConfirm } = questionSlice.actions;
+export const { goToNextQuestion, setShowConfirm, resetCurrentState } = questionSlice.actions;
 export default questionSlice.reducer;
