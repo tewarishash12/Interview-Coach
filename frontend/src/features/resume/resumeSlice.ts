@@ -35,6 +35,25 @@ export const getAllResumes = createAsyncThunk<
     }
 })
 
+export const reuseExistingResume = createAsyncThunk<
+    { resumeId: string; interviewId: string },
+    string,
+    { rejectValue: string }
+>('resume/useExisting', async (resumeId, thunkAPI) => {
+    try {
+        const res = await axiosMainInstance.post('/resume/use-existing', { resumeId });
+        const { resumeId: id, interviewId } = res.data;
+
+        localStorage.setItem("resumeId", id);
+        localStorage.setItem("interviewId", interviewId);
+
+        return { resumeId: id, interviewId };
+    } catch (error) {
+        return rejectWithError(error, thunkAPI, "Failed to use existing resume");
+    }
+});
+
+
 const initialState: ResumeState = {
     resumes: [],
     isUploadingResume: false,
@@ -114,7 +133,20 @@ const resumeSlice = createSlice({
             .addCase(getAllResumes.rejected, (state, action) => {
                 state.isLoadingResumes = false;
                 state.errorMessage = action.payload ?? "Failed to fetch resumes";
-            });
+            })
+            .addCase(reuseExistingResume.pending, (state) => {
+                state.isUploadingResume = true;
+                state.errorMessage = null;
+            })
+            .addCase(reuseExistingResume.fulfilled, (state) => {
+                state.isUploadingResume = false;
+                state.uploadSuccess = true;
+                state.showJobRoleModal = true;
+            })
+            .addCase(reuseExistingResume.rejected, (state, action) => {
+                state.isUploadingResume = false;
+                state.errorMessage = action.payload ?? "Failed to use existing resume";
+            })
     }
 })
 

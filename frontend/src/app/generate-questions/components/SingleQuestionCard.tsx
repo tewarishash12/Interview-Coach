@@ -3,7 +3,7 @@ import { CardLayout } from "@/global-components/Card";
 import { Button1, Button2 } from "@/global-components/Button";
 import VoiceRecorder from "./VoiceRecorder";
 import { useAppDispatch, useAppSelector } from "@/store";
-import { answerFeedback, goToNextQuestion, setShowConfirm } from "@/features/questions/questionSlice";
+import { answerFeedback, goToNextQuestion, resetCurrentState, setShowConfirm } from "@/features/questions/questionSlice";
 import ConfirmationModal from "./ConfirmationModal";
 import { useRouter } from "next/navigation";
 import FeedbackLoadingOverlay from "./FeedbackLoadingOverlay";
@@ -34,7 +34,7 @@ export default function SingleQuestionCard() {
         if (current + 1 < questions.length) {
             dispatch(goToNextQuestion());
         } else {
-            // Last question, save the interview
+                dispatch(resetCurrentState());
             router.push(`/interview/${localStorage.getItem("interviewId")}`);
         }
     }
@@ -52,6 +52,7 @@ export default function SingleQuestionCard() {
                 dispatch(goToNextQuestion());
                 dispatch(resetTranscription());
             } else {
+                dispatch(resetCurrentState());
                 router.push(`/interview/${localStorage.getItem("interviewId")}`); // Change to your target route
             }
         }
