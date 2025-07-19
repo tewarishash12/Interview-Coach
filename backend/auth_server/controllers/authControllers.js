@@ -33,7 +33,7 @@ exports.register = async (req, res) => {
         const user = new User({ name, email, password: hashedPassword, verificationToken });
         await user.save();
 
-        res.status(201).json({ message: "Chevlk mail for verificatin link" });
+        res.status(201).json({ message: "Check mail for verification link" });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
