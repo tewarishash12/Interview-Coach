@@ -20,7 +20,7 @@ export function ResumePreviewModal({ resume }: {resume: Resume | null}) {
     const isPdf = resume.fileName.toLowerCase().endsWith(".pdf");
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-transparent backdrop-blur-md flex items-center justify-center z-50">
             <CardLayout className="p-5 min-w-6xl">
                 <div className="flex justify-between items-center mb-2">
                     <div className="font-semibold text-gray-900">{resume.fileName}</div>
