@@ -15,7 +15,7 @@ export default function JobRoleModal({ onSubmit, onClose }: { onSubmit: (role: s
     }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-transparent backdrop-blur-md bg-opacity-30 flex items-center justify-center z-50">
             <CardLayout className="p-5">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-gray-900">What job role are you targeting?</h2>

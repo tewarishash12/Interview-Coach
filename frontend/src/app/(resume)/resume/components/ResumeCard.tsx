@@ -7,7 +7,10 @@ import { useState } from "react";
 import { ResumePreviewModal } from "./ResumePreviewModal";
 import { useAppDispatch, useAppSelector } from "@/store";
 import ResumeConfirmationModal from "./ResumeConfirmationModal";
-import { setSelectedResumeId } from "@/features/resume/resumeSlice";
+import { deleteResume, setSelectedResumeId } from "@/features/resume/resumeSlice";
+import { BsTrash } from "react-icons/bs"
+import ResumeDeleteModal from "./ResumeDeleteModal";
+
 const MAIN_LINK = process.env.NEXT_PUBLIC_MAIN_API_URL;
 
 export function ResumeCard({ resume }: { resume: Resume }) {
@@ -15,6 +18,7 @@ export function ResumeCard({ resume }: { resume: Resume }) {
     const router = useRouter();
     const { isLoadingResumes } = useAppSelector((state) => state.resume)
     const [showConfirm, setShowConfirm] = useState(false);
+    const [showDelete, setShowDelete] = useState(false);
 
     function handleUseResume() {
         setShowConfirm(true);
@@ -31,8 +35,17 @@ export function ResumeCard({ resume }: { resume: Resume }) {
         setPreviewResume(resume);
     }
 
+    function handleDelete() {
+        setShowDelete(true);
+    }
+
+    function confirmDelete() {
+        dispatch(deleteResume(resume._id));
+        setShowDelete(false);
+    }
+
     return (
-        <CardLayout className="p-10">
+        <CardLayout className="p-10 relative">
             <div className="flex items-center gap-2 mb-2">
                 <span className="text-2xl">📄</span>
                 <span className="font-semibold text-gray-900">{resume.fileName}</span>
@@ -59,6 +72,14 @@ export function ResumeCard({ resume }: { resume: Resume }) {
                 <Button1 onClick={handleUseResume}>Use This Resume</Button1>
                 {showConfirm && <ResumeConfirmationModal setShowConfirm={setShowConfirm} confirmUseResume={confirmUseResume} />}
             </div>
+            <button
+                className={`text-red-500 cursor-pointer text-lg font-bold rounded-md px-2 py-2 bg-gray-200 hover:bg-gray-300 absolute top-10 right-5`}
+                onClick={handleDelete}
+            >
+                <BsTrash />
+            </button>
+            {showDelete && <ResumeDeleteModal setShowDelete={setShowDelete} confirmDelete={confirmDelete} />}
+
             <ResumePreviewModal resume={previewResume} />
         </CardLayout>
     );

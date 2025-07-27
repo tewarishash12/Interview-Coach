@@ -65,3 +65,21 @@ exports.getInterviewById = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
+exports.deleteInterview = async(req,res) =>{
+    try {
+        const {id} = req.params;
+
+        const interview = await Interview.findById({_id:id});
+
+        if(!interview) {
+            return res.status(404).json({message:"Interview that you are trying to delete doesn't exist"});
+        }
+
+        await Interview.findByIdAndDelete({_id:id});
+
+        res.status(201).json({message:"Interview session has been updated successfully"});
+    } catch(err) {
+        res.status(500).json({ message: err.message });
+    }
+}

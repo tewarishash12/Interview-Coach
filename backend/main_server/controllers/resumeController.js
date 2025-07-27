@@ -1,6 +1,8 @@
 const Resume = require('../models/Resume');
 const Interview = require("../models/Interview")
 const resumeParser = require('../services/resumeParser');
+const path = require("path");
+const fs = require("fs");
 
 exports.uploadResume = async (req, res) => {
     try {
@@ -89,5 +91,36 @@ exports.useExistingResume = async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ message: err.message });
+    }
+};
+
+exports.deleteResume = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const resume = await Resume.findOne({ _id: id, user: req.user._id });
+
+        if (!resume) {
+            return res.status(404).json({ message: 'Resume not found or unauthorized access' });
+        }
+
+        await Interview.deleteMany({ resume: resume._id });
+
+        // Delete the actual file from disk (optional but recommended)
+        const fileToDelete = path.join(__dirname, '..', resume.filePath);
+        fs.unlink(fileToDelete, (err) => {
+            if (err && err.code !== 'ENOENT') {
+                console.error('Failed to delete resume file:', err);
+            }
+        });
+
+        // Delete the resume document
+        await resume.deleteOne();
+
+        res.status(200).json({ message: 'Resume and associated interviews deleted successfully' });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error while deleting resume' });
     }
 };

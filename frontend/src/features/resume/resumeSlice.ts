@@ -53,6 +53,19 @@ export const reuseExistingResume = createAsyncThunk<
     }
 });
 
+export const deleteResume = createAsyncThunk<
+    string,
+    string, 
+    { rejectValue: string }
+>("resume/delete", async (resumeId, thunkAPI) => {
+    try {
+        console.log(resumeId);
+        await axiosMainInstance.delete(`/resume/delete/${resumeId}`);
+        return resumeId;
+    } catch (error) {
+        return rejectWithError(error, thunkAPI, "Failed to delete resume");
+    }
+});
 
 const initialState: ResumeState = {
     resumes: [],
@@ -134,6 +147,7 @@ const resumeSlice = createSlice({
                 state.isLoadingResumes = false;
                 state.errorMessage = action.payload ?? "Failed to fetch resumes";
             })
+            // reuse already saved resume from backend
             .addCase(reuseExistingResume.pending, (state) => {
                 state.isUploadingResume = true;
                 state.errorMessage = null;
@@ -146,6 +160,13 @@ const resumeSlice = createSlice({
             .addCase(reuseExistingResume.rejected, (state, action) => {
                 state.isUploadingResume = false;
                 state.errorMessage = action.payload ?? "Failed to use existing resume";
+            })
+            //delete resume from list
+            .addCase(deleteResume.fulfilled, (state, action) => {
+                state.resumes = state.resumes.filter(resume => resume._id !== action.payload);
+            })
+            .addCase(deleteResume.rejected, (state, action) => {
+                state.errorMessage = action.payload ?? "Failed to delete resume";
             })
     }
 })
